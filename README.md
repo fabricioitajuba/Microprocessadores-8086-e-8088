@@ -1,10 +1,10 @@
 # Microprocessadores 8086 e 8088
 
-### Copiar a pasta 8086 para dentro da pasta do DOSBOX
+### - Copiar a pasta 8086 para dentro da pasta do DOSBOX
 
-### Copiar a pasta Exemplos para dentro da pasta 8086
+### - Copiar a pasta Exemplos para dentro da pasta 8086
 
-### Editar o arquivo dosbox.conf e inserir as seguintes linhas no final do arquivo?
+### - Editar o arquivo dosbox.conf e inserir as seguintes linhas no final do arquivo?
 
 ```
 [autoexec]
@@ -14,11 +14,11 @@ SET PATH=C:\8086;%PATH%
 C:
 ```
 
-### para montar (compilar):
+### - para montar (compilar):
 masm ex01.asm;
 
-### para linkar:
+### - para linkar:
 link ex01.obj;
 
-### para executar:
+### - para executar:
 ex01
