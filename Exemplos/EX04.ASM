@@ -60,6 +60,3 @@ print_char:
 
 HEXA  	ENDP
 END 	HEXA 
-
-
-
