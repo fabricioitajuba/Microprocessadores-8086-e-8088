@@ -53,8 +53,9 @@ bin2ascii_end:
 ;Imprime um caracter presente em al
 ;---------------------------------------------------
 print_char:
-	mov ah, 0Eh    ; Seleciona a função Teletype
-	int 10h        ; Chama a interrupção de vídeo do BIOS
+	mov dl, al
+	mov ah, 02h    ; Seleciona a função 02h Saída de caractere
+	int 21h        ; Chama a interrupção 21h	
 	ret
 
 HEXA  	ENDP

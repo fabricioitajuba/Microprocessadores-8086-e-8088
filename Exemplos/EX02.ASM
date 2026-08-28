@@ -12,10 +12,10 @@
 Char 	Proc
 
 	;Imprime um caracter
-	mov ah, 0Eh    ; Seleciona a função Teletype
-	mov al, 'A'    ; Caractere a ser exibido
-	int 10h        ; Chama a interrupção de vídeo do BIOS
-
+	mov ah, 02h    ; Seleciona a função 02h Saída de caractere
+	mov dl, 'A'    ; Caractere a ser exibido
+	int 21h        ; Chama a interrupção 21h
+	
 	;Sai e retorna ao MSDOS
 	mov al, 00h
 	mov ah, 04ch

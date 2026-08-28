@@ -75,13 +75,14 @@ le_tec:	mov ah, 07h
 	ret
 
 ;---------------------------------------------------
-; print_tec
+; print_char
 ; imprime na tela a tecla pressionada
 ; al = o valor em ASCII
 ;---------------------------------------------------
 print_char:
-	mov ah, 0Eh    ; Seleciona a função Teletype
-	int 10h        ; Chama a interrupção de vídeo do BIOS
+	mov dl, al
+	mov ah, 02h    ; Seleciona a função 02h Saída de caractere
+	int 21h        ; Chama a interrupção 21h	
 	ret
 
 ;---------------------------------------------------
