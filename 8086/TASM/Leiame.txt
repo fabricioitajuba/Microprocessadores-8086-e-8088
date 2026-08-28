@@ -1,0 +1,11 @@
+- Para compilar:
+C:\>Tasm ex01
+
+- Para linkar:
+C:\>tlink ex01
+
+- para executar:
+C:\>ex01
+
+- Para debugar:
+C:\>td ex01

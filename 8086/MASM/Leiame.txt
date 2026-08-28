@@ -1,0 +1,10 @@
+- para montar (compilar):
+C:\>masm ex01.asm;
+
+- para linkar:
+C:\>link ex01.obj;
+
+- para executar:
+C:\>ex01
+
+
