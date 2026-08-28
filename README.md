@@ -10,14 +10,15 @@
 [autoexec]
 @echo off
 MOUNT C C:\DOSBox
-SET PATH=C:\8086;%PATH%
+SET PATH=C:\8086\MASM;%PATH%
+SET PATH=C:\8086\TASM;%PATH%
 C:
 ```
 
-### - para montar (compilar):
+### - para montar usando o MASM (compilar):
 masm ex01.asm;
 
-### - para linkar:
+### - para linkar usando o MASM:
 link ex01.obj;
 
 ### - para executar:
