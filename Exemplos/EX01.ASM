@@ -14,9 +14,11 @@ LF	equ	0AH	;ASCII line feed
 	.code
 Hello 	Proc
 
-	;Imprime uma string
+	;Inicializa o segmento de dados
 	mov ax, @data
 	mov ds, ax
+
+	;Imprime uma string
 	mov dx, OFFSET Message
 	mov ah,9h
 	int 21h
@@ -28,5 +30,4 @@ Hello 	Proc
 
 Hello 	ENDP
 END 	Hello
-
 
