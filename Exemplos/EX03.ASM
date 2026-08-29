@@ -2,11 +2,13 @@
 ; EX03.asm - Leitura de uma tecla e impressão na tela
 ; Autor: Eng. Fabrício Ribeiro
 ;-----------------------------------------------------
+
+CR	equ	0DH	;ASCII carriage return
+LF	equ	0AH	;ASCII line feed
+
 	.model small
 
 	.stack 100h
-CR	equ	0DH	;ASCII carriage return
-LF	equ	0AH	;ASCII line feed
 
 	.data
 	Message DB 'Pressione uma tecla ...',CR,LF,'$'
@@ -36,5 +38,4 @@ Char 	Proc
 
 Char 	ENDP
 END 	Char
-
 
