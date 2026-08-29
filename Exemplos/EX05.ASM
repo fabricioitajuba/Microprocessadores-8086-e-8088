@@ -3,11 +3,13 @@
 ;            do byte ASCII correspondente a tecla.
 ; Autor: Eng. Fabrício Ribeiro
 ;-----------------------------------------------------
+
+CR	equ	0DH	;ASCII carriage return
+LF	equ	0AH	;ASCII line feed
+
 	.model small
 
 	.stack 100h
-CR	equ	0DH	;ASCII carriage return
-LF	equ	0AH	;ASCII line feed
 
 	.data
 	msg1	db 	'Pressione uma tecla ... ',CR,LF,'$'
@@ -99,3 +101,4 @@ print_string:
 
 Char 	ENDP
 END 	Char
+
