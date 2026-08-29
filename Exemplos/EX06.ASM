@@ -2,11 +2,13 @@
 ; EX06.asm - Leitura de uma string e impressão na tela
 ; Autor: Eng. Fabrício Ribeiro
 ;-----------------------------------------------------
+
+CR	equ	0dh	;ASCII carriage return
+LF	equ	0ah	;ASCII line feed
+
 	.model small
 
 	.stack 100h
-CR	equ	0dh	;ASCII carriage return
-LF	equ	0ah	;ASCII line feed
 
 	.data
     	len	db 50  		;Tamanho do buffer 50 char+return
