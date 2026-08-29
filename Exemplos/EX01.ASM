@@ -2,11 +2,13 @@
 ; EX01.asm - Impressão de uma string na tela
 ; Autor: Eng. Fabrício Ribeiro
 ;----------------------------------------------
+
+CR	equ	0DH	;ASCII carriage return
+LF	equ	0AH	;ASCII line feed
+
 	.model small
 
 	.stack 100h
-CR	equ	0DH	;ASCII carriage return
-LF	equ	0AH	;ASCII line feed
 
 	.data
 	Message DB 'Hello, World!',CR,LF,'$'
