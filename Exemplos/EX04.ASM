@@ -12,7 +12,7 @@
 HEXA 	Proc
 
 	mov al,7Fh		;Irá mostra o byte 7fh
-	call byte_hexa_print
+	call print_hexa
 
 	;Sai e retorna ao MSDOS
 	mov al, 00h
@@ -22,7 +22,7 @@ HEXA 	Proc
 ;---------------------------------------------------
 ;Separa os nibbles para impressão
 ;---------------------------------------------------
-byte_hexa_print:
+print_hexa:
 	push ax
 	mov cl,4
 	sar al,cl
@@ -60,3 +60,4 @@ print_char:
 
 HEXA  	ENDP
 END 	HEXA 
+
