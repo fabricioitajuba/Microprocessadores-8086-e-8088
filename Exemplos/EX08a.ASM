@@ -35,26 +35,26 @@ MAIN Proc
 	int 21h
 
 check_time:
-	mov ah,06h
-	mov dl,0ffh
-	int 21h
-	jz sem_tecla
-	cmp al,11h ;Ctrl+q
-	je exit_dos
-sem_tecla:
-	mov ah,2ch
-	int 21h 
-	cmp dh,var
-	je check_time
-	mov var,dh
+	mov ah,06h		;Verifica
+	mov dl,0ffh		;se alguma
+	int 21h			;tecla
+	jz sem_tecla	;foi pressionada.
+	cmp al,11h 		;Se as teclas forem: Ctrl+q
+	je exit_dos		;Sai do programa.
+sem_tecla:			;Se nenhuma tecla foi pressionada:
+	mov ah,2ch		;Leia as.
+	int 21h 		;horas
+	cmp dh,var		;Compara o segundo atual com o anterior
+	je check_time	;Se for igual, volta em "check_time"
+	mov var,dh		;Se não, guarda o valor atual.
 
 	call get_time	;Obtem a hora
 	call show_time	;Imprime a hora
 
-	mov al,CR
-	call print_char
+	mov al,CR		;Retorna o cursor
+	call print_char	;na primeira posição da linha.
 
-	jmp check_time
+	jmp check_time	;volta em "check_time"
 
 exit_dos:
 	;Sai e retorna ao MSDOS
