@@ -23,3 +23,6 @@ link ex01.obj;
 
 ### - para executar:
 ex01
+
+### - Referência na linguagem:
+https://stanislavs.org/helppc/
