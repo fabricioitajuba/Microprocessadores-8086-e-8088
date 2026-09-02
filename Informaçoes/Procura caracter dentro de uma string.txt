@@ -1,0 +1,26 @@
+Exemplo Prático de Uso
+
+O código abaixo busca o caractere 'X' (código ASCII 58h) dentro de uma string 
+armazenada na memória.
+
+assembly:
+
+    CLD             		; Limpa a flag de direção (DI será incrementado)
+    MOV AL, 'X'     		; AL recebe o caractere que queremos procurar ('X')
+    MOV DI, OFFSET minha_string ; DI aponta para o início da string
+    MOV CX, 10      		; CX define o tamanho máximo da busca (10 bytes)
+
+BUSCA:
+    SCASB           		; Compara AL com ES:[DI] e incrementa DI
+    JE ACHOU        		; Se ZF = 1 (encontrou), pula para o rótulo ACHOU
+    LOOP BUSCA      		; Decrementa CX e repete se CX > 0
+	
+NAO_ACHOU:
+    ; Código para quando o caractere não está na string
+    JMP FIM
+
+ACHOU:
+    ; Código para quando o caractere é encontrado
+    ; DI já aponta para a posição logo após o caractere correspondente
+
+FIM:

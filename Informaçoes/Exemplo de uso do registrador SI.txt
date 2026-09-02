@@ -1,0 +1,22 @@
+	.data
+	vect dw DIM dup ?
+
+	.code
+	mov ax, @data
+	mov ds, ax
+
+	mov ax,1
+	mov bx,1
+	mov cx,COUNT
+	
+	lea si,vect	;SI recebe o endereço de vect
+
+	mov [si],1	;O endereço apontado por SI recebe "1"
+	add si,2	;O valor do endereço em SI é somado de 2
+
+ciclo: 	mov [si],bx	;O valor de BX é guardado no endereço apontado por SI
+       	mov dx,bx
+       	add bx,ax
+       	mov ax,dx
+       	add si,2
+       	LOOP ciclo

@@ -1,0 +1,37 @@
+.MODEL SMALL
+.DATA
+    ; Define o bloco de origem com os dados
+    ORIGEM  DB 10H, 20H, 30H, 40H, 50H 
+    
+.STACK 100H
+
+.CODE
+MAIN PROC
+    ; Inicializa o segmento de dados (DS)
+    MOV AX, @DATA
+    MOV DS, AX
+    
+    ; Inicializa o segmento extra (ES) - Necessário para o destino em instruções de string
+    MOV ES, AX
+    
+    ; 1. Configura os ponteiros e o contador
+    LEA SI, ORIGEM      ; SI aponta para o início do bloco de origem
+    LEA DI, DESTINO     ; DI aponta para o início do bloco de destino
+    MOV CX, 5           ; CX armazena a quantidade de bytes a copiar
+    
+    ; 2. Define a direção da cópia (frente)
+    CLD                 ; Limpa o DF (Direction Flag) para incrementar SI e DI automaticamente
+    
+    ; 3. Executa a cópia do bloco
+    REP MOVSB           ; Repete a cópia de byte em byte até que CX seja 0
+
+    ; Finaliza o programa retornando ao DOS
+    MOV AH, 4CH
+    INT 21H
+MAIN ENDP
+
+.DATA
+    ; Reserva o espaço para o destino (5 bytes zerados)
+    DESTINO DB 5 DUP(0) 
+
+END MAIN
