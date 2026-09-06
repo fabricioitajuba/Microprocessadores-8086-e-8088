@@ -13,9 +13,8 @@ LF	equ	0AH	;ASCII line feed
 	.data
 	nome db 'texto.txt',0
 	msg1 db 'Erro ao criar o arquivo!',CR,LF,'$'
-	msg2 db 'Arquivo criado com sucesso!',CR,LF,'$'
+	msg2 db 'Erro ao escrever no arquivo!',CR,LF,'$'
 	msg3 db 'Erro ao fechar o arquivo!',CR,LF,'$'
-	msg4 db 'Erro ao escrever no arquivo!',CR,LF,'$'
 
 	texto db 'Texto inserido no arquivo!',CR,LF
 	len equ $-texto ;Calcula o tamanho do arquivo
@@ -37,9 +36,6 @@ MAIN 	Proc
 	int 21h			;Chama a interrupção 21h
 	jc erro_criar
 	mov handle,ax
-
-	lea dx,msg2
-	call print_string
 
 	;Escrevendo no arquivo
 	mov bx,handle
@@ -64,7 +60,7 @@ erro_criar:
 
 	;Erro ao escrever
 erro_escrever:
-	lea dx,msg4
+	lea dx,msg2
 	call print_string
 	jmp sai_dos
 
