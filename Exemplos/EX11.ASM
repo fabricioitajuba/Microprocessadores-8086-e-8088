@@ -1,5 +1,5 @@
 ;-----------------------------------------------------
-; EX11.asm - Comprimento de uma String
+; EX11.asm - Comprimento de uma String - Strlen
 ; Autor: Eng. Fabrício Ribeiro
 ;-----------------------------------------------------
 
