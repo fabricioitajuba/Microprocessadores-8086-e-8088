@@ -11,10 +11,10 @@ LF	equ	0AH	;ASCII line feed
 	.stack 100h
 
 	.data
-	nome db 'EX15.TXT',0
+	nome db 'texto.txt',0
+	
 	msg1 DB 'Erro ao criar o arquivo!',CR,LF,'$'
-	msg2 DB 'Arquivo criado com sucesso!',CR,LF,'$'
-	msg3 DB 'Erro ao fechar o arquivo!',CR,LF,'$'
+	msg2 DB 'Erro ao fechar o arquivo!',CR,LF,'$'
 
     ; Variável para guardar o identificador do arquivo
     handle dw ?
@@ -35,9 +35,6 @@ MAIN 	Proc
 	jc erro_criar
 	mov handle,ax
 
-	lea dx,msg2
-	call print_string
-
 	;Aqui ocorre a manipulação
 	;do arquivo
 
@@ -56,7 +53,7 @@ erro_criar:
 
 	;Erro ao fechar
 erro_fechar:
-	lea dx,msg3
+	lea dx,msg2
 	call print_string
 
 sai_dos:
