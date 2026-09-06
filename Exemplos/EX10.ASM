@@ -1,5 +1,5 @@
 ;-----------------------------------------------------
-; EX10.asm - Compara 2 strings
+; EX10.asm - Compara 2 strings - Strcmp
 ; Autor: Eng. Fabrício Ribeiro
 ;-----------------------------------------------------
 
