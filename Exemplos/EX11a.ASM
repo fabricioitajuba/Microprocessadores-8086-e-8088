@@ -1,5 +1,5 @@
 ;-----------------------------------------------------
-; EX11a.asm - Concatena 2 strings
+; EX11a.asm - Concatena 2 strings - Strcat
 ; Autor: Eng. Fabrício Ribeiro
 ;-----------------------------------------------------
     .model small
