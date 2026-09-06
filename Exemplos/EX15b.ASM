@@ -13,19 +13,10 @@ LF	equ	0AH	;ASCII line feed
 	.data
 	nome db 'texto.txt',0
 
-	msg1 db 'Erro ao criar o arquivo!',CR,LF,'$'
-	msg2 db 'Arquivo criado com sucesso!',CR,LF,'$'
-	msg3 db 'Erro ao fechar o arquivo!',CR,LF,'$'
-	msg4 db 'Erro ao escrever no arquivo!',CR,LF,'$'
-	msg5 db 'O arquivo naun existe e serah criado!',CR,LF,'$'
-	msg6 db 'Texto inserido!',CR,LF,'$'
-	msg7 db 'Arquivo fechado com sucesso!',CR,LF,'$'
-	msg8 db 'Arquivo aberto com sucesso!',CR,LF,'$'
-	msg9 db 'Erro ao mover o ponteiro!',CR,LF,'$'
-	msg10 db 'Erro ao adicionar texto!',CR,LF,'$'
-	msg11 db 'Erro ao abrir arquivo!',CR,LF,'$'
-	msg12 db 'Texto inserido com sucesso!',CR,LF,'$'
-	msg13 db 'Ponteiro movido com sucesso!',CR,LF,'$'
+	msg1 db 'Erro ao abrir o arquivo!',CR,LF,'$'
+	msg2 db 'Erro ao mover o ponteiro!',CR,LF,'$'
+	msg3 db 'Erro ao adicionar texto!',CR,LF,'$'
+	msg4 db 'Erro ao fechar o arquivo!',CR,LF,'$'
 
 	texto db 'Texto inserido no arquivo!',CR,LF
 	len equ $-texto ;Calcula o tamanho do arquivo
@@ -45,11 +36,8 @@ MAIN 	Proc
     lea dx,nome
     mov ah,3dh			;Abre arquivo existente
     int 21h	
-
 	jc erro_abrir
 	mov handle,ax		;Salva o handle do arquivo
-	lea dx,msg8
-	call print_string
 
 	;Inserindo texto
 insere_texto:
@@ -59,10 +47,7 @@ insere_texto:
     mov dx,0			; Deslocamento (bytes menos significativos)
     mov ah,42h			; Nove o ponteiro para o final do arquivo
     int 21h				; DX:AX agora contém o novo tamanho do arquivo
-
     jc erro_ponteiro
-	lea dx,msg13
-	call print_string
 
     ; 3. GRAVAR O NOVO TEXTO NO FINAL (Função 40h)
     mov bx,handle
@@ -70,21 +55,33 @@ insere_texto:
     lea dx,texto		; Endereço do novo texto
 	mov ah,40h			; Insere dados
     int 21h
-
     jc erro_adicionar
-	lea dx,msg12
-	call print_string
+
 	jmp fecha_arquivo
+
+
+	;Erro ao abrir
+erro_abrir:
+	lea dx,msg1
+	call print_string
+	jmp sai_dos
 
 	;erro ao mover o ponteiro
 erro_ponteiro:
-	lea dx,msg9
+	lea dx,msg2
 	call print_string	
 	jmp fecha_arquivo
 
 erro_adicionar:
-	lea dx,msg10
+	lea dx,msg3
 	call print_string
+	jmp fecha_arquivo
+
+	;Erro ao fechar
+erro_fechar:
+	lea dx,msg4
+	call print_string
+	jmp sai_dos
 
 fecha_arquivo:
 	;Fecha o arquivo
@@ -92,20 +89,6 @@ fecha_arquivo:
 	mov ah,3eh
 	int 21h
 	jc erro_fechar
-	lea dx,msg7
-	call print_string
-	jmp sai_dos	
-
-	;Erro ao abrir
-erro_abrir:
-	lea dx,msg11
-	call print_string
-	call sai_dos
-
-	;Erro ao fechar
-erro_fechar:
-	lea dx,msg3
-	call print_string
 
 sai_dos:
 	;Sai e retorna ao MSDOS
