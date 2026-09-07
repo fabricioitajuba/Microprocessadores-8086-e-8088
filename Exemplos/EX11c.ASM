@@ -46,10 +46,7 @@ main:
 
 encontrado:
     ;DI possui o endereço do próximo caracter depois do caracter encontrado
-    mov byte ptr[di-1],'T'   ;Altera o byte encontrado por "T"
-    mov byte ptr[di],'a'   ;Altera o byte encontrado por "a"
-    mov byte ptr[di+1],'n'   ;Altera o byte encontrado por "n"
-    mov byte ptr[di+2],'g'   ;Altera o byte encontrado por "g"
+    mov byte ptr[di-1],'C'   ;Altera o byte encontrado por "T"
 
     ;Mostra a string antiga
     lea dx,msg2
