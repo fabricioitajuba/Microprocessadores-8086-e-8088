@@ -5,16 +5,15 @@
 ; link EX00.obj;
 ;---------------------------------------------
 
-pilha segment para stack 'stack'
-	dw 128 dup(?)
-pilha ends
-
-dados segment para 'data'
+dados segment
 	;Os dados vão aqui
+	nome db 8 dup(' ')
+	idade db 2
+	itens db 1, 2, 3
 dados ends
 
-codigo segment para 'code'
-	assume ss:pilha,cs:codigo,ds:dados,es:dados
+codigo segment
+	   assume cs:codigo, ss:pilha
 
 ;---------------------------------
 ; Programa principal
@@ -24,7 +23,7 @@ main proc far
 	;Inicializa os segmentos de dados
 	mov ax,dados
 	mov ds,ax
-	mov es,ax
+	assume ds:dados
 
 	;Programa principal
 
@@ -58,4 +57,12 @@ func2 	proc 	near
 func2 	endp
 
 codigo	ends
+
+;---------------------------------
+; Pilha ou stack
+;---------------------------------
+pilha segment para stack 'stack'
+	dw 100 dup(?)
+pilha ends
+
 end	main
