@@ -1,12 +1,8 @@
 ;----------------------------------------------
-; EX00.ASM - Modelo de programa bem estruturado
-;            .exe
+; EX00.ASM - Segmento de código no arquivo .exe
 ; Autor: Eng. Fabrício Ribeiro
 ; masm EX00.asm;
 ; link EX00.obj;
-; exe2bin EX00 EX00.com
-; obs: Para utiliar o comando exe2bin, o 
-; code_seg tem que estar antes de data_seg
 ;---------------------------------------------
 
 pilha segment para stack 'stack'
@@ -23,7 +19,12 @@ codigo segment para 'code'
 ;---------------------------------
 ; Programa principal
 ;---------------------------------
-main proc near
+main proc far
+
+	;Inicializa os segmentos de dados
+	mov ax,dados
+	mov ds,ax
+	mov es,ax
 
 	;Programa principal
 
