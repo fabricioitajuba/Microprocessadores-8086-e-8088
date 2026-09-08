@@ -1,6 +1,6 @@
-##Utilizando o DEBUG para visualizar o conteúdo de um arquivo
+## Utilizando o DEBUG para visualizar o conteúdo de um arquivo
 
-###Analisando o conteúdo de um arquivo:
+### Analisando o conteúdo de um arquivo:
 
 ```
 c:\>debug texto.txt
@@ -9,8 +9,8 @@ c:\>debug texto.txt
 
 ![Na tela](arquivo.png)
 
-###Irá verificar os dados entre 0000h-016fh
+### Irá verificar os dados entre 0000h-016fh
 
-###para sair: 
+### Para sair: 
 -q
 
