@@ -7,7 +7,7 @@ c:\>debug texto.txt
 -dcs:0 16f
 ```
 
-![Na tela](Arquivo txt.png)
+![Na tela](arquivo.png)
 
 ###Irá verificar os dados entre 0000h-016fh
 
