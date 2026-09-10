@@ -1,0 +1,29 @@
+Como procurar um arquivo usando o masm com o 8086?
+
+Para procurar um arquivo em Assembly 8086 usando o MASM no ambiente de MS-DOS, 
+você deve utilizar as funções de serviço do DOS por meio da Interrupção 21h.
+
+O processo padrão consiste em combinar duas funções específicas: FindFirst 
+(AH = 4Eh) para localizar a primeira ocorrência do arquivo e, caso queira 
+buscar por padrões com curingas (como *.txt), a função FindNext (AH = 4Fh) 
+para encontrar os arquivos subsequentes.
+
+Antes de chamar essas funções, o DOS exige que você configure a DTA (Disk Transfer 
+Area), que é a região da memória onde ele salvará as informações do arquivo encontrado 
+(como nome, tamanho e atributos).
+
+Quando a interrupção INT 21h / AH=4Eh é bem-sucedida, os dados do arquivo mapeado 
+são gravados dentro dos 43 bytes do seu dta_buffer. Caso queira extrair informações 
+detalhadas do arquivo, a estrutura interna desses dados segue o layout:
+
+Bytes 0–20: Reservado pelo DOS para buscas subsequentes (FindNext).
+
+Byte 21: Atributo do arquivo encontrado.
+
+Bytes 22–23: Hora da última modificação.
+
+Bytes 24–25: Data da última modificação.
+
+Bytes 26–29: Tamanho do arquivo (32-bit / Double Word).
+
+Bytes 30–42: Nome do arquivo formatado em string ASCIIZ (terminada em 0).
