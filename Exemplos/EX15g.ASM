@@ -30,8 +30,8 @@ inicio: jmp main
 	msg5 db 'Erro ao inserir dados no arquivo!',CR,LF,'$'
 
 	;Buffer para inserir dados
-	buffer db buffer_len dup(0) 
-	len dw 0
+	buffer db buffer_len dup(0) ;Buffer para escrita no arquivo
+	len dw 0					;Número de bytes no buffer
 
 	texto db ' - Texto inserido no arquivo!','$'
 
@@ -144,7 +144,9 @@ print_string endp
 ; rst_buffer - Reseta o contador do buffer
 ;----------------------------------------------
 rst_buffer proc near
-	mov si,0
+	mov al,0
+	mov si,al
+	mov len,al
 	ret
 rst_buffer endp
 
