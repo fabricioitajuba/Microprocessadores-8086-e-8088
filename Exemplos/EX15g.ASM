@@ -59,14 +59,16 @@ insere_dados:
 	;<<< ### Os dados que serão inseridos ### >>>
 	call rst_buffer	;Reseta o buffer
 
-	mov al,'1'
-	call add_buffer	;Adiciona dado ao buffer
-	mov al,'2'
-	call add_buffer
-	mov al,'3'
-	call add_buffer
-	mov al,'4'
-	call add_buffer
+	;mov al,'1'
+	;call add_buffer	;Adiciona dado ao buffer
+	;mov al,'2'
+	;call add_buffer
+	;mov al,'3'
+	;call add_buffer
+	;mov al,'4'
+	;call add_buffer
+
+	call time_buffer	;Adiciona a hora no buffer
 
 	lea di,texto
 	call str_buffer	;Adiciona uma string no vetor
@@ -195,6 +197,61 @@ end_buffer proc near
 	mov len,si
 	ret
 end_buffer endp
+
+;----------------------------------------------
+; time_buffer - Insere a hora atual no buffer
+;----------------------------------------------
+time_buffer proc near
+
+	;Recebe a hora do sistema
+	mov ah,2ch
+	int 21h 
+
+	;Insere a hora atual
+	mov al,ch
+	call hexa2decimal
+	add al,'0'
+	call add_buffer
+	mov al,ah
+	add al,'0'
+	call add_buffer
+	mov al,':'
+	call add_buffer
+
+	;Insere o minuto atual
+	mov al,cl
+	call hexa2decimal
+	add al,'0'
+	call add_buffer
+	mov al,ah
+	add al,'0'
+	call add_buffer
+	mov al,':'
+	call add_buffer
+
+	;Insere o segundo atual
+	mov al,dh
+	call hexa2decimal
+	add al,'0'
+	call add_buffer
+	mov al,ah
+	add al,'0'
+	call add_buffer
+	
+	ret
+time_buffer endp
+
+;---------------------------------------------------
+;hexa para decimal
+;Endada: al = valor entre 00h a 63h
+;Saídas: ah = unidade, al = dezena
+;---------------------------------------------------
+hexa2decimal proc near
+    xor ah,ah
+    mov bl,10
+    div bl
+    ret
+hexa2decimal endp
 
 code ends
 	end inicio
