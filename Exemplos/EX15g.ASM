@@ -1,5 +1,5 @@
 ;----------------------------------------------
-; EX15g.ASM - Gera um arquivo de loga
+; EX15g.ASM - Gera um arquivo de "log"
 ; Autor: Eng. Fabrício Ribeiro
 ; masm EX15g.asm;
 ; link EX15g.obj;
