@@ -1,7 +1,8 @@
 rem cd 8086
-rem cd nmake
+rem cd Projetos
+rem cd Proj01
 nmake
-exe2bin main main.com
+exe2bin Proj01 Proj01.com
 del *.obj
-del main.exe
-main
+del Proj01.exe
+Proj01

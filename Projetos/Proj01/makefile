@@ -1,9 +1,9 @@
 # Nome do executável final
-TARGET = main.exe
+TARGET = Proj01.exe
 
 # Lista de todos os arquivos objetos (.obj) que serão gerados
 # Adicione aqui os nomes de todos os seus módulos separados por espaço
-OBJECTS = main.obj imp_car.obj imp_hexa.obj imp_deci.obj crlf.obj
+OBJECTS = Proj01.obj imp_car.obj imp_hexa.obj imp_deci.obj crlf.obj
 
 # Compilador e Linker do MASM 6.11
 AS = ml
