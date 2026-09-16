@@ -7,8 +7,10 @@
 ; LEA DX,STRING
 ; CALL IMP_STR
 
+CGROUP          GROUP   CODE_SEG
+                ASSUME  CS:CGROUP, DS:CGROUP
+
 CODE_SEG        SEGMENT PUBLIC
-                ASSUME  CS:CODE_SEG
 
                 PUBLIC  IMP_STR
 

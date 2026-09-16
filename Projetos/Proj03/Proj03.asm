@@ -39,9 +39,10 @@ MAIN 	ENDP
 
 CODE_SEG	ENDS
 
+        PUBLIC  FILE_NAME
+        
 DATA_SEG       SEGMENT PUBLIC
-        ;EXTRN   FILE_NAME:BYTE
-        ;EXTRN   HANBLE:WORD
+        FILE_NAME DB 'texto.txt',0
 DATA_SEG       ENDS
 
         END     MAIN
