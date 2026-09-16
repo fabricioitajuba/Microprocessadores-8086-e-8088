@@ -4,8 +4,10 @@
 CR      EQU     13      ;Retorno de carro
 LF      EQU     10      ;Mudança de linha
 
+CGROUP          GROUP   CODE_SEG, DATA_SEG
+                ASSUME  CS:CGROUP, DS:CGROUP
+
 CODE_SEG        SEGMENT PUBLIC
-                ASSUME  CS:CODE_SEG, DS:DATA_SEG
 
                 EXTRN   IMP_STR:NEAR
 
@@ -20,7 +22,7 @@ FILE_CREATE     PROC    NEAR
                 PUSH    AX
                 PUSH    CX
                 PUSH    DX
-                
+        
 	            LEA     DX,FILE_NAME    ;Aponta para o nome do arquivo
 	            MOV     CX,0		    ;Atributo normal (sem oculto ou somente leitura)
 	            MOV     AH,3CH		    ;Função para criar um arquivo
@@ -77,7 +79,7 @@ CODE_SEG        ENDS
 ; ÁREA DE DADOS
 ;****************************************************************
 DATA_SEG        SEGMENT PUBLIC
-                ;PUBLIC  FILE_NAME, HANDLE, FILE_MSG_ERROR_CREATE, FILE_MSG_ERROR_CLOSE
+                ;PUBLIC  FILE_NAME, HANDLE, FILE_MSG_ERROR_CREATE,FILE_MSG_ERROR_CLOSE
                 FILE_NAME DB 'texto.txt',0
                 HANDLE  DW  ?
                 FILE_MSG_ERROR_CREATE DB 'Erro ao criar o arquivo!',CR,LF,'$'
