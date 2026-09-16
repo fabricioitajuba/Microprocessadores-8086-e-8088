@@ -4,7 +4,7 @@
 ; $ NMAKE
 ; $ exe2bin proj03 proj03.com
 ; Autor: Eng. Fabrício Ribeiro
-; Status: Concluído!
+; Status: NÃO Concluído!
 ;----------------------------------------------------
 
 FALSE   EQU     0
@@ -33,8 +33,8 @@ MAIN	PROC NEAR
         MOV     AX,0                    ;Configura o 
         MOV     ATTR,AX                 ;Atributo do arquivo.
         CALL    FILE_CREATE             ;Tenta criar o arquivo;
-        MOV     AL,STATUS               ;Verifica 
-        CMP     AL,FALSE                ;a variável STATUS.
+        MOV     AL,FILE_STATUS          ;Verifica 
+        CMP     AL,FALSE                ;a variável FILE_STATUS.
         JE      SAI_DOS                 ;Se FALSE, sai para o DOS
         LEA     DX,FILE_MSG_CREATE      ;Se TRUE
         CALL    IMP_STR                 ;imprime a mensagem
@@ -42,8 +42,8 @@ MAIN	PROC NEAR
         MOV     AX,HANDLE_IN            ;Carrega o HANDLE do
         MOV     HANDLE_OUT,AX           ;arquivo.
         CALL    FILE_CLOSE              ;Tenta Fechar o arquivo.
-        MOV     AL,STATUS               ;Verifica
-        CMP     AL,FALSE                ;a variável STATUS.
+        MOV     AL,FILE_STATUS          ;Verifica
+        CMP     AL,FALSE                ;a variável FILE_STATUS.
         JE      SAI_DOS                 ;Se FALSE, sai para o DOS
         LEA     DX,FILE_MSG_CLOSE       ;Se TRUE
         CALL    IMP_STR                 ;imprime a mensagem
@@ -56,14 +56,20 @@ MAIN 	ENDP
 
 CODE_SEG	ENDS
 
-        PUBLIC  FILE_NAME, ATTR, HANDLE_OUT
+        PUBLIC  FILE_NAME, ATTR, HANDLE_OUT, TEXTO, LEN
 
 DATA_SEG       SEGMENT PUBLIC
         FILE_NAME DB 'texto.txt',0
         ATTR DW 0
-        EXTERN STATUS:BYTE              ;Recebe a variável externa
-        EXTERN HANDLE_IN:WORD           ;Recebe a variável externa
+        EXTERN FILE_STATUS:BYTE                 ;Recebe a variável externa
+        EXTERN HANDLE_IN:WORD                   ;Recebe a variável externa
         HANDLE_OUT DW ?
+
+        ;Texto para inserir:
+        TEXTO DB 'Texto inserido no arquivo!',CR,LF
+        LEN EQU $-TEXTO                         ;Calcula o tamanho do texto
+
+        ;Mensagens
         FILE_MSG_CREATE DB 'Arquivo criado com sucesso!',CR,LF,'$'
         FILE_MSG_CLOSE DB 'Arquivo fechado com sucesso!',CR,LF,'$'
 DATA_SEG       ENDS
