@@ -1,6 +1,9 @@
 ; Essas rotinas manipulam arquivos
 ;
 
+FALSE   EQU     0
+TRUE    EQU     1
+
 CR      EQU     13      ;Retorno de carro
 LF      EQU     10      ;Mudança de linha
 
@@ -13,8 +16,18 @@ CODE_SEG        SEGMENT PUBLIC
 
 ;****************************************************************
 ; FILE_CREATE
-; Esta rotina cria um arquivo definido por FILE_NAME
-; Se der certo, retorna na variável HANDLE o número do arquivo
+; Esta rotina cria um arquivo.
+;
+; Entradas: FILE_NAME = Nome do arquivo
+;           ATTR = atributo do arquivo
+;
+; Saídas: 
+;       - Se deu certo: Variável FILE_STATUS = 1
+;                       Variável HANDLE_IN = número do arquivo
+;       - Se deu errado: Variável FILE_STATUS = 0
+; Atributo: 00h-normal|01h-apenas leitura|02-oculto|04h-sistema
+; OBS: Guardar em outra variável a variável HANDLE_IN quando 
+; use mais de um arquivo.
 ;****************************************************************
                 PUBLIC  FILE_CREATE
 
@@ -24,17 +37,19 @@ FILE_CREATE     PROC    NEAR
                 PUSH    DX
 
 	            LEA     DX,FILE_NAME    ;Aponta para o nome do arquivo
-	            MOV     CX,0		    ;Atributo normal (sem oculto ou somente leitura)
+	            MOV     CX,ATTR		    ;Atributo
 	            MOV     AH,3CH		    ;Função para criar um arquivo
 	            INT     21H			    ;Chama a interrupção 21h
 	            JC      FILE_CREATE_ERROR
-	            MOV     HANDLE,AX
+                MOV     HANDLE_IN,AX
+                MOV     AL,TRUE
+                MOV     STATUS,AL
                 JMP     FILE_CREATE_END
 FILE_CREATE_ERROR:
-                LEA     DX,FILE_MSG_ERROR_CREATE
-                CALL    IMP_STR
-FILE_CREATE_END:
+                MOV     AL,FALSE
+                MOV     STATUS,AL
 
+FILE_CREATE_END:
                 POP     DX
                 POP     CX
                 POP     AX
@@ -46,7 +61,13 @@ FILE_CREATE     ENDP
 
 ;****************************************************************
 ; FILE_CLOSE
-; Esta rotina fecha um arquivo, através da variável HANDLE
+; Esta rotina fecha um arquivo.
+;
+; Entradas: HANDLE_OUT = número do arquivo
+;
+; Saídas: 
+;       - Se deu certo: Variável FILE_STATUS = 1
+;       - Se deu errado: Variável FILE_STATUS = 0
 ;****************************************************************
                 PUBLIC  FILE_CLOSE
 
@@ -55,14 +76,17 @@ FILE_CLOSE      PROC    NEAR
                 PUSH    BX
                 PUSH    DX
 
-	            MOV     BX,HANDLE       ;Recebe o HANDLE do arquivo
+	            MOV     BX,HANDLE_OUT   ;Recebe o HANDLE_OUT do arquivo
 	            MOV     AH,3EH		    ;Função para fechar um arquivo
 	            INT     21H			    ;Chama a interrupção 21h
 	            JC      FILE_CLOSE_ERROR
+                MOV     AL,TRUE
+                MOV     STATUS,AL                
                 JMP     FILE_CLOSE_END
 FILE_CLOSE_ERROR:
-                LEA     DX,FILE_MSG_ERROR_CLOSE
-                CALL    IMP_STR
+                MOV     AL,FALSE
+                MOV     STATUS,AL
+
 FILE_CLOSE_END:
                 POP     DX
                 POP     BX
@@ -78,11 +102,14 @@ CODE_SEG        ENDS
 ;****************************************************************
 ; ÁREA DE DADOS
 ;****************************************************************
+                PUBLIC  STATUS, HANDLE_IN
+
 DATA_SEG        SEGMENT PUBLIC
-                EXTERN FILE_NAME:BYTE
-                HANDLE  DW  ?
-                FILE_MSG_ERROR_CREATE DB 'Erro ao criar o arquivo!',CR,LF,'$'
-                FILE_MSG_ERROR_CLOSE DB 'Erro ao fechar o arquivo!',CR,LF,'$'
+                EXTERN ATTR:WORD        ;Recebe a variável externa
+                EXTERN FILE_NAME:BYTE   ;Recebe a variável externa
+                HANDLE_IN  DW  ?
+                EXTERN HANDLE_OUT:WORD  ;Recebe a variável externa
+                STATUS DB ?
 DATA_SEG        ENDS
 
                 END
