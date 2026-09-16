@@ -22,9 +22,6 @@ FILE_CREATE     PROC    NEAR
                 PUSH    AX
                 PUSH    CX
                 PUSH    DX
-        
-                LEA     DX,MSG_TESTE
-                CALL    IMP_STR
 
 	            LEA     DX,FILE_NAME    ;Aponta para o nome do arquivo
 	            MOV     CX,0		    ;Atributo normal (sem oculto ou somente leitura)
@@ -58,9 +55,6 @@ FILE_CLOSE      PROC    NEAR
                 PUSH    BX
                 PUSH    DX
 
-                LEA     DX,MSG_TESTE
-                CALL    IMP_STR
-
 	            MOV     BX,HANDLE       ;Recebe o HANDLE do arquivo
 	            MOV     AH,3EH		    ;Função para fechar um arquivo
 	            INT     21H			    ;Chama a interrupção 21h
@@ -89,7 +83,6 @@ DATA_SEG        SEGMENT PUBLIC
                 HANDLE  DW  ?
                 FILE_MSG_ERROR_CREATE DB 'Erro ao criar o arquivo!',CR,LF,'$'
                 FILE_MSG_ERROR_CLOSE DB 'Erro ao fechar o arquivo!',CR,LF,'$'
-                MSG_TESTE DB 'tESTE!',CR,LF,'$'
 DATA_SEG        ENDS
 
                 END

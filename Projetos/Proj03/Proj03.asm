@@ -40,7 +40,7 @@ MAIN 	ENDP
 CODE_SEG	ENDS
 
         PUBLIC  FILE_NAME
-        
+
 DATA_SEG       SEGMENT PUBLIC
         FILE_NAME DB 'texto.txt',0
 DATA_SEG       ENDS
