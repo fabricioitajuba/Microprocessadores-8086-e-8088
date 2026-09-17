@@ -3,7 +3,7 @@ TARGET = Proj03.exe
 
 # Lista de todos os arquivos objetos (.obj) que serão gerados
 # Adicione aqui os nomes de todos os seus módulos separados por espaço
-OBJECTS = Proj03.obj imp_str.obj file.obj
+OBJECTS = Proj03.obj strings.obj file.obj
 
 # Compilador e Linker do MASM 6.11
 AS = ml

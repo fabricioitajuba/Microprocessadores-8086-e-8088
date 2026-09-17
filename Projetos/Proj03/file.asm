@@ -1,18 +1,18 @@
+;****************************************************************
 ; Essas rotinas manipulam arquivos
 ;
+; FILE_CREATE - Cria um arquivo;
+; FILE_INSERT - Insere dados em um arquivo;
+; FILE_CLOSE - Fecha um arquivo.
+;****************************************************************
 
-FALSE   EQU     0
-TRUE    EQU     1
-
-CR      EQU     13      ;Retorno de carro
-LF      EQU     10      ;Mudança de linha
 
 CGROUP          GROUP   CODE_SEG, DATA_SEG
                 ASSUME  CS:CGROUP, DS:CGROUP
 
 CODE_SEG        SEGMENT PUBLIC
 
-                EXTRN   IMP_STR:NEAR
+                INCLUDE CONST.INC
 
 ;****************************************************************
 ; FILE_CREATE
@@ -29,6 +29,7 @@ CODE_SEG        SEGMENT PUBLIC
 ; OBS: Guardar em outra variável a variável HANDLE_IN quando 
 ; use mais de um arquivo.
 ;****************************************************************
+
                 PUBLIC  FILE_CREATE
 
 FILE_CREATE     PROC    NEAR
@@ -75,6 +76,7 @@ FILE_CREATE     ENDP
 ; OBS: Guardar em outra variável a variável HANDLE_IN quando 
 ; use mais de um arquivo.
 ;****************************************************************
+
                 PUBLIC  FILE_INSERT
 
 FILE_INSERT     PROC    NEAR
@@ -116,6 +118,7 @@ FILE_INSERT     ENDP
 ;       - Se deu certo: Variável FILE_STATUS = 1
 ;       - Se deu errado: Variável FILE_STATUS = 0
 ;****************************************************************
+
                 PUBLIC  FILE_CLOSE
 
 FILE_CLOSE      PROC    NEAR
@@ -152,13 +155,15 @@ CODE_SEG        ENDS
                 PUBLIC  FILE_STATUS, HANDLE_IN
 
 DATA_SEG        SEGMENT PUBLIC
+
                 EXTERN ATTR:WORD        ;Recebe a variável externa
                 EXTERN FILE_NAME:BYTE   ;Recebe a variável externa
                 HANDLE_IN  DW  ?
                 EXTERN HANDLE_OUT:WORD  ;Recebe a variável externa
                 EXTERN TEXTO:BYTE       ;Recebe a variável externa
-                EXTERN LEN:BYTE         ;Recebe a variável externa
+                EXTERN LEN:WORD         ;Recebe a variável externa
                 FILE_STATUS DB ?
+
 DATA_SEG        ENDS
 
                 END
