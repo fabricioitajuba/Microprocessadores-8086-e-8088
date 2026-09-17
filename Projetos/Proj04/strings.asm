@@ -164,8 +164,8 @@ DATA_SEG        SEGMENT PUBLIC
 
                 STR_LENGHT  DW  ?
                 STR_COMPARE  DB  ?
-                STRING1  DB  ?
-                STRING2  DB  ?
+                EXTERN STRING1:BYTE
+                EXTERN STRING2:BYTE
                 EXTERN TEXTO:BYTE   ;Recebe a variável externa
                 EXTERN CAR:BYTE     ;Recebe a variável externa
                 

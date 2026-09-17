@@ -59,7 +59,7 @@ DATA_SEG       SEGMENT PUBLIC
 
         ;Strings
         STRING1 DB 'Essa eh a string 1!',CR,LF,'$'
-        STRING2 DB 'Essa eh a string 1!',CR,LF,'$'
+        STRING2 DB 'Essa eh a string 2!',CR,LF,'$'
         EXTERN STR_COMPARE:BYTE
 
         MSG1 DB 'As strings saum iguais!',CR,LF,'$'
