@@ -4,7 +4,7 @@
 ; $ NMAKE
 ; $ exe2bin proj04 proj04.com
 ; Autor: Eng. Fabrício Ribeiro
-; Status: Não Concluído!
+; Status: Concluído!
 ;----------------------------------------------------
 
 CGROUP  GROUP   CODE_SEG, DATA_SEG
