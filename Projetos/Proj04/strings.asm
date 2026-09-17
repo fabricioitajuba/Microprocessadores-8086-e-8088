@@ -4,6 +4,7 @@
 ; CAR_PRINT - Imprime um caracter na tela;
 ; STR_PRINT - Imprime uma string na tela;
 ; STR_LEN - Calcula o número de bytes de uma string;
+; STR_CMP - Compara duas strings;
 ;****************************************************************
 
 CGROUP          GROUP   CODE_SEG, DATA_SEG
