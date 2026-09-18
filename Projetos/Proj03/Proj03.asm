@@ -33,7 +33,7 @@ MAIN	PROC NEAR
         ;Tenta abrir um arquivo para inserir dados
         MOV     AL, 1                   ;Configura Atributo:
         MOV     FILE_MODE, AL           ;1 - escrita
-        CALL    FILE_APPEND
+        CALL    FILE_APPEND             ;Tenta abrir o arquivo para escrita
         MOV     AL, FILE_STATUS         ;Verifica 
         CMP     AL, FALSE               ;a variável FILE_STATUS.
         JE      CRIA_ARQUIVO            ;Se o arquivo não existir, será criado
