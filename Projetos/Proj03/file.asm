@@ -217,6 +217,51 @@ FILE_POINTER    ENDP
 ;----------------------------------------------------------------
 
 ;****************************************************************
+; FILE_READ
+; Esta rotina faz a leitura de um arquivo.
+;
+; Entradas: HANDLE_IN = número do arquivo
+;
+; Saídas: 
+;       - Se deu certo: Variável FILE_STATUS = 1
+;       - Se deu errado: Variável FILE_STATUS = 0
+;****************************************************************
+
+                PUBLIC  FILE_READ
+
+FILE_READ       PROC    NEAR
+
+                PUSH    AX
+                PUSH    BX
+                PUSH    CX
+                PUSH    DX
+
+                MOV     BX, HANDLE_IN    ;Recebe o HANDLE_OUT do arquivo
+                MOV     CX, BUFFER_READ_LEN
+                LEA     DX, BUFFER_READ
+                MOV     AH, 3FH          ;Função para fechar um arquivo
+                INT     21H             ;Chama a interrupção 21h
+                JC      FILE_READ_ERROR
+                MOV     AL, TRUE
+                MOV     FILE_STATUS, AL                
+                JMP     FILE_READ_END
+FILE_READ_ERROR:
+                MOV     AL, FALSE
+                MOV     FILE_STATUS, AL
+
+FILE_READ_END:
+                POP     DX
+                POP     CX
+                POP     BX
+                POP     AX
+                RET
+
+FILE_READ      ENDP
+;----------------------------------------------------------------
+; FIM FILE_READ
+;----------------------------------------------------------------
+
+;****************************************************************
 ; FILE_CLOSE
 ; Esta rotina fecha um arquivo.
 ;
@@ -234,16 +279,16 @@ FILE_CLOSE      PROC    NEAR
                 PUSH    AX
                 PUSH    BX
 
-	            MOV     BX,HANDLE_IN    ;Recebe o HANDLE_OUT do arquivo
-	            MOV     AH,3EH		    ;Função para fechar um arquivo
+	            MOV     BX, HANDLE_IN   ;Recebe o HANDLE_OUT do arquivo
+	            MOV     AH, 3EH		    ;Função para fechar um arquivo
 	            INT     21H			    ;Chama a interrupção 21h
 	            JC      FILE_CLOSE_ERROR
-                MOV     AL,TRUE
-                MOV     FILE_STATUS,AL                
+                MOV     AL, TRUE
+                MOV     FILE_STATUS, AL                
                 JMP     FILE_CLOSE_END
 FILE_CLOSE_ERROR:
-                MOV     AL,FALSE
-                MOV     FILE_STATUS,AL
+                MOV     AL, FALSE
+                MOV     FILE_STATUS, AL
 
 FILE_CLOSE_END:
                 POP     BX
@@ -277,6 +322,8 @@ DATA_SEG        SEGMENT PUBLIC
                 EXTERN FILE_NBYTES_L:WORD
                 EXTERN TEXTO:BYTE
                 EXTERN LEN:WORD
+                EXTERN BUFFER_READ:BYTE
+                EXTERN BUFFER_READ_LEN:WORD
 
 DATA_SEG        ENDS
 

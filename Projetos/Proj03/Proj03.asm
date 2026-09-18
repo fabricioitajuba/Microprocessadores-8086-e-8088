@@ -4,7 +4,10 @@
 ; $ NMAKE
 ; $ exe2bin proj03 proj03.com
 ; Autor: Eng. Fabrício Ribeiro
+; Status: Problema na leitura do arquivo
 ;----------------------------------------------------
+
+BUFFER_HEADE_SIZE       EQU     512
 
 CGROUP  GROUP   CODE_SEG, DATA_SEG
         ASSUME  CS:CGROUP, DS:CGROUP
@@ -20,6 +23,7 @@ CODE_SEG	SEGMENT PUBLIC
         EXTRN   FILE_INSERT:NEAR
         EXTRN   FILE_APPEND:NEAR
         EXTRN   FILE_POINTER:NEAR
+        EXTRN   FILE_READ:NEAR
         EXTRN   FILE_CLOSE:NEAR
 
         EXTRN   STR_PRINT:NEAR
@@ -85,6 +89,23 @@ INSERE_DADOS:
         LEA     DX, FILE_MSG_INSERT     ;Se TRUE
         CALL    STR_PRINT               ;imprime a mensagem
 
+        ;Faz a leitura do arquivo:
+        MOV     AX, HANDLE_OUT          ;Carrega o HANDLE do
+        MOV     HANDLE_IN, AX           ;arquivo.
+        MOV     AX, BUFFER_HEADE_SIZE   ;Configura o número
+        MOV     BUFFER_READ_LEN, AX     ;de bytes para serem lidos.
+        CALL    FILE_READ               ;Tenta fazer a leitura do arquivo.
+        MOV     AL, FILE_STATUS         ;Verifica
+        CMP     AL, FALSE               ;a variável FILE_STATUS.
+        JE      FECHA_ARQUIVO           ;Se FALSE, sai para o DOS
+
+        LEA     DX, FILE_MSG_READ       ;Se TRUE
+        CALL    STR_PRINT               ;imprime a mensagem
+
+        ;Mostra o conteúdo do arquivo
+        LEA     DX, BUFFER_READ         ;Conteúdo do
+        CALL    STR_PRINT               ;arquivo.
+
         ;Fecha o arquivo
 FECHA_ARQUIVO:
         MOV     AX, HANDLE_OUT          ;Carrega o HANDLE do
@@ -108,8 +129,8 @@ CODE_SEG	ENDS
 ; ÁREA DE DADOS
 ;****************************************************************
 
-        PUBLIC FILE_NAME, ATTR, HANDLE_IN, TEXTO, LEN
-        PUBLIC FILE_ORIGIN, FILE_NBYTES_H, FILE_NBYTES_L
+        PUBLIC FILE_NAME, ATTR, HANDLE_IN, TEXTO, LEN, FILE_ORIGIN
+        PUBLIC FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN
 
 DATA_SEG       SEGMENT PUBLIC
 
@@ -122,6 +143,8 @@ DATA_SEG       SEGMENT PUBLIC
         FILE_ORIGIN DB ?
         FILE_NBYTES_H DW ?
         FILE_NBYTES_L DW ?
+        BUFFER_READ DB BUFFER_HEADE_SIZE DUP('$') ;Buffer de leitura do arquivo
+        BUFFER_READ_LEN DW ?                    ;Quantidade de bytes a serem lidos
 
         EXTERN FILE_STATUS:BYTE                 ;Recebe a variável externa        
         EXTERN HANDLE_OUT:WORD                  ;Recebe a variável externa
@@ -133,6 +156,7 @@ DATA_SEG       SEGMENT PUBLIC
         FILE_MSG_OPEN DB 'Arquivo aberto com sucesso!',CR,LF,'$'
         FILE_MSG_POINTER DB 'Ponteiro posicionado com sucesso!',CR,LF,'$'
         FILE_MSG_INSERT DB 'Dados inseridos com sucesso!',CR,LF,'$'
+        FILE_MSG_READ DB 'Arquivo lido com sucesso!',CR,LF,'$'
         FILE_MSG_CLOSE DB 'Arquivo fechado com sucesso!',CR,LF,'$'
 
 DATA_SEG       ENDS
