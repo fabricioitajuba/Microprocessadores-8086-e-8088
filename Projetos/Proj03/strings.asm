@@ -4,7 +4,6 @@
 ; CAR_PRINT - Imprime um caracter na tela;
 ; STR_PRINT - Imprime uma string na tela;
 ; STR_LEN - Calcula o número de bytes de uma string;
-; STR_CMP - Compara duas strings;
 ;****************************************************************
 
 CGROUP          GROUP   CODE_SEG, DATA_SEG
@@ -35,7 +34,6 @@ IMPRESSO:       MOV     AH, 02H
                 RET
 
 CAR_PRINT       ENDP                
-
 ;----------------------------------------------------------------
 ; FIM CAR_PRINT
 ;----------------------------------------------------------------
@@ -61,7 +59,6 @@ STR_PRINT       PROC    NEAR
                 RET
 
 STR_PRINT       ENDP
-
 ;----------------------------------------------------------------
 ; FIM FILE_CLOSE
 ;----------------------------------------------------------------
@@ -151,7 +148,7 @@ STR_CMP_END:    POP     DI
 
 STR_CMP         ENDP
 ;----------------------------------------------------------------
-; FIM STR_LEN
+; FIM STR_CMP
 ;----------------------------------------------------------------
 
 CODE_SEG        ENDS
@@ -165,8 +162,8 @@ DATA_SEG        SEGMENT PUBLIC
 
                 STR_LENGHT  DW  ?
                 STR_COMPARE  DB  ?
-                EXTERN STRING1:BYTE
-                EXTERN STRING2:BYTE
+                STRING1  DB  ?
+                STRING2  DB  ?
                 EXTERN TEXTO:BYTE   ;Recebe a variável externa
                 EXTERN CAR:BYTE     ;Recebe a variável externa
                 
