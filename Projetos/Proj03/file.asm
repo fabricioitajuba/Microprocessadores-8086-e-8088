@@ -127,7 +127,7 @@ FILE_INSERT     ENDP
 ;                       Variável HANDLE_OUT = número do arquivo
 ;       - Se deu errado: Variável FILE_STATUS = 0
 ;
-; Modo de acesso: 0=Leitura|1=escrita
+; Modo de acesso: 0=Leitura|1=escrita|2=leitura e escrita
 ; OBS: Guardar em outra variável a variável HANDLE_OUT quando 
 ; use mais de um arquivo.
 ;****************************************************************
@@ -221,7 +221,8 @@ FILE_POINTER    ENDP
 ; Esta rotina faz a leitura de um arquivo.
 ;
 ; Entradas: HANDLE_IN = número do arquivo
-;
+;           BUFFER_READ_LEN = tamanho do buffer de leitura
+;           BUFFER_READ = ponteiro do buffer de leitura
 ; Saídas: 
 ;       - Se deu certo: Variável FILE_STATUS = 1
 ;       - Se deu errado: Variável FILE_STATUS = 0
@@ -236,11 +237,11 @@ FILE_READ       PROC    NEAR
                 PUSH    CX
                 PUSH    DX
 
-                MOV     BX, HANDLE_IN    ;Recebe o HANDLE_OUT do arquivo
+                MOV     BX, HANDLE_IN       ;Recebe o HANDLE_OUT do arquivo
                 MOV     CX, BUFFER_READ_LEN
                 LEA     DX, BUFFER_READ
-                MOV     AH, 3FH          ;Função para fechar um arquivo
-                INT     21H             ;Chama a interrupção 21h
+                MOV     AH, 3FH             ;Função para fechar um arquivo
+                INT     21H                 ;Chama a interrupção 21h
                 JC      FILE_READ_ERROR
                 MOV     AL, TRUE
                 MOV     FILE_STATUS, AL                
@@ -305,13 +306,12 @@ CODE_SEG        ENDS
 ;****************************************************************
 ; ÁREA DE DADOS
 ;****************************************************************
-                PUBLIC  FILE_STATUS, HANDLE_OUT, FILE_MODE
+                PUBLIC  FILE_STATUS, HANDLE_OUT
 
 DATA_SEG        SEGMENT PUBLIC
 
                 HANDLE_OUT DW ?
                 FILE_STATUS DB ?
-                FILE_MODE DB ?
 
                 ;Recebe a variável externa
                 EXTERN ATTR:WORD
@@ -320,6 +320,7 @@ DATA_SEG        SEGMENT PUBLIC
                 EXTERN FILE_ORIGIN:BYTE
                 EXTERN FILE_NBYTES_H:WORD
                 EXTERN FILE_NBYTES_L:WORD
+                EXTERN FILE_MODE:BYTE
                 EXTERN TEXTO:BYTE
                 EXTERN LEN:WORD
                 EXTERN BUFFER_READ:BYTE
