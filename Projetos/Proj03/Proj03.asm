@@ -4,7 +4,6 @@
 ; $ NMAKE
 ; $ exe2bin proj03 proj03.com
 ; Autor: Eng. Fabrício Ribeiro
-; Status: Problema na leitura do arquivo
 ;----------------------------------------------------
 
 BUFFER_HEADE_SIZE       EQU     512
