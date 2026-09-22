@@ -40,6 +40,31 @@ CODE_SEG	SEGMENT PUBLIC
 ;****************************************************************
 MAIN	PROC NEAR
         
+        ;Tenta abrir o arquivo REGISTRO.TXT para ESCRITA e LEITURA
+        ;Caso não exista, será criado.
+        MOV     AL, 2
+        MOV     FILE_MODE, AL
+        CALL    FILE_APPEND
+        MOV     AL, FILE_STATUS
+        CMP     AL, TRUE
+        JE      INICIO_PROGRAMA
+
+        ;Cria o arquivo
+        MOV     AX, 0
+        MOV     ATTR, AX
+        CALL    FILE_CREATE
+        MOV     AL, FILE_STATUS
+        CMP     AL, FALSE
+        JE      SAI_DOS
+        
+        ;Fecha o arquivo
+        MOV     AX, HANDLE_OUT
+        MOV     HANDLE_IN, AX
+        CALL    FILE_CLOSE
+        MOV     AL, FILE_STATUS
+        CMP     AL, FALSE
+        JE      SAI_DOS
+
 INICIO_PROGRAMA:
 
         CALL    CLR_SCREEN                      ;Limpa a tela
@@ -99,29 +124,6 @@ CRUD_CREATE:
 ; FIM CREATE
 ;-------------------------------------------------------
 
-        ;Tenta abrir um arquivo para ESCRITA e LEITURA
-        MOV     AL, 2                           ;Configura Atributo:
-        MOV     FILE_MODE, AL                   ;2 - escrita e leitura
-        CALL    FILE_APPEND                     ;Tenta abrir o arquivo para escrita
-        MOV     AL, FILE_STATUS                 ;Verifica 
-        CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        JE      CRIA_ARQUIVO                    ;Se o arquivo não existir, será criado
-                                                ;HANDLE_IN possui o número do arquivo
-        MOV     AL, TRUE                        ;Configura que o arquivo
-        MOV     FLAG, AL                        ;Já foi criado.
-        JMP     INSERE_DADOS                    ;Insere dados
-
-CRIA_ARQUIVO:
-        ;Cria um arquivo
-        MOV     AX, 0                           ;Configura o 
-        MOV     ATTR, AX                        ;Atributo do arquivo.
-        CALL    FILE_CREATE                     ;Tenta criar o arquivo;
-        MOV     AL, FILE_STATUS                 ;Verifica 
-        CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        JE      SAI_DOS                         ;Se FALSE, sai para o DOS
-                                                ;HANDLE_IN possui o número do arquivo
-        JMP     FECHA_ARQUIVO                   ;Fecha o arquivo.
-
 INSERE_DADOS:
         ;Posiciona o ponteiro do arquivo no final do arquivo
         MOV     AL, 02H                         ;Posiciona o ponteiro
@@ -134,7 +136,7 @@ INSERE_DADOS:
         CALL    FILE_POINTER                    ;Tenta posicionar o ponteiro.
         MOV     AL, FILE_STATUS                 ;Verifica 
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        JE      FECHA_ARQUIVO                   ;Se FALSE, fecha o arquivo e sai para o DOS
+        ;JE      FECHA_ARQUIVO                   ;Se FALSE, fecha o arquivo e sai para o DOS
 
         ;Prepara os dados que serão inseridos
         CALL    STR_LEN                         ;Passa TEXTO como parâmetro
@@ -147,7 +149,7 @@ INSERE_DADOS:
         CALL    FILE_INSERT                     ;Insere dados no arquivo
         MOV     AL, FILE_STATUS                 ;Verifica
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        JE      FECHA_ARQUIVO                   ;Se FALSE, sai para o DOS
+        ;JE      FECHA_ARQUIVO                   ;Se FALSE, sai para o DOS
 
         ;Posiciona o ponteiro do arquivo no início do arquivo
         MOV     AL, 00H                         ;Posiciona o ponteiro
@@ -160,7 +162,7 @@ INSERE_DADOS:
         CALL    FILE_POINTER                    ;Tenta posicionar o ponteiro.
         MOV     AL, FILE_STATUS                 ;Verifica 
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        JE      FECHA_ARQUIVO                   ;Se FALSE, fecha o arquivo e sai para o DOS
+        ;JE      FECHA_ARQUIVO                   ;Se FALSE, fecha o arquivo e sai para o DOS
 
         ;Faz a leitura do arquivo:
         MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
@@ -170,7 +172,7 @@ INSERE_DADOS:
         CALL    FILE_READ                       ;Tenta fazer a leitura do arquivo.
         MOV     AL, FILE_STATUS                 ;Verifica
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        JE      FECHA_ARQUIVO                   ;Se FALSE, sai para o DOS
+        ;JE      FECHA_ARQUIVO                   ;Se FALSE, sai para o DOS
 
         LEA     DX, FILE_MSG_READ               ;Se TRUE
         CALL    STR_PRINT                       ;imprime a mensagem
@@ -178,22 +180,6 @@ INSERE_DADOS:
         ;Mostra o conteúdo do arquivo
         LEA     DX, BUFFER_READ                 ;Conteúdo do
         CALL    STR_PRINT                       ;arquivo.
-
-        ;Fecha o arquivo
-FECHA_ARQUIVO:
-        MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
-        MOV     HANDLE_IN, AX                   ;arquivo.
-        CALL    FILE_CLOSE                      ;Tenta Fechar o arquivo.
-        MOV     AL, FILE_STATUS                 ;Verifica
-        CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        JE      SAI_DOS                         ;Se FALSE, sai para o DOS
-
-        MOV     AL, FLAG                        ;Testa se
-        CMP     AL, TRUE                        ;o arquivo foi
-        JE      SAI_DOS                         ;criado recentemente.
-        MOV     AL, TRUE                        ;Configura que
-        MOV     FLAG, AL                        ;o arquivo
-        JMP     INICIO_PROGRAMA                 ;já foi criado.
 
 SAI_DOS:
 	MOV     AH, 4CH                         ;Retorna ao
@@ -211,8 +197,6 @@ CODE_SEG	ENDS
         PUBLIC FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN
 
 DATA_SEG       SEGMENT PUBLIC
-
-        FLAG DB FALSE
 
         TEXTO DB 'Esse eh o texto inserido no arquivo!',CR,LF,'$'
         LEN DW ?
