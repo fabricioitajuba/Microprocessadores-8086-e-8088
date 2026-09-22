@@ -86,6 +86,19 @@ INICIO_PROGRAMA:
         JE      CRUD_CREATE
         CMP     AL,'Q'
         JE      SAI_DOS
+
+
+        ;Inicializando o buffer de registro
+        MOV     SI, 0
+        MOV     AL, '*'
+        MOV     BUFFER_REGISTRO[SI], AL
+        MOV     SI, 30
+        MOV     AL, CR
+        MOV     BUFFER_REGISTRO[SI], AL
+        MOV     SI, 31
+        MOV     AL, LF
+        MOV     BUFFER_REGISTRO[SI], AL 
+                
         JMP     INICIO_PROGRAMA
 
 
@@ -98,26 +111,20 @@ CRUD_CREATE:
 
         LEA     DX, CRUD_MSG_CREATE_NOME
         CALL    STR_PRINT
-        CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE
+        
+	LEA     DX, NOME_LEN                    ;Lê a string NOME
+	MOV     AH, 0AH
+	INT     21H
 
-        LEA     DX, CRUD_MSG_CREATE_IDADE
-        CALL    STR_PRINT
-        CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE
+	LEA     DX, IDADE_LEN                   ;Lê a string NOME
+	MOV     AH, 0AH
+	INT     21H
 
         LEA     DX, CRUD_MSG_CREATE_SUCESSO
         CALL    STR_PRINT
-        CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
 
-        ;Inicializando o buffer de registro
-        MOV     SI, 0
-        MOV     AL, '*'
-        MOV     BUFFER_REGISTRO[SI], AL
-        MOV     SI, 30
-        MOV     AL, CR
-        MOV     BUFFER_REGISTRO[SI], AL
-        MOV     SI, 31
-        MOV     AL, LF
-        MOV     BUFFER_REGISTRO[SI], AL              
+        CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
+           
 
         JMP     INICIO_PROGRAMA
 ;-------------------------------------------------------
@@ -187,6 +194,38 @@ SAI_DOS:
 
 MAIN 	ENDP
 
+;****************************************************************
+; REGISTRO_CLEAR
+; Esta rotina abre um arquivo já criado para leitura ou escrita
+;****************************************************************
+
+                PUBLIC  FILE_APPEND
+
+FILE_APPEND     PROC    NEAR
+
+                PUSH    AX
+                PUSH    DX
+
+                MOV     AL, FILE_MODE
+                LEA     DX, FILE_NAME
+                MOV     AH, 3DH
+                INT     21H
+                JC      FILE_APPEND_ERROR
+                MOV     HANDLE_OUT,AX
+                MOV     AL,TRUE
+                MOV     FILE_STATUS,AL
+                JMP     FILE_APPEND_END
+FILE_APPEND_ERROR:
+                MOV     AL,FALSE
+                MOV     FILE_STATUS,AL
+
+FILE_APPEND_END:
+                POP     DX
+                POP     AX
+                RET
+
+FILE_APPEND     ENDP
+
 CODE_SEG	ENDS
 
 ;****************************************************************
@@ -200,6 +239,16 @@ DATA_SEG       SEGMENT PUBLIC
 
         TEXTO DB 'Esse eh o texto inserido no arquivo!',CR,LF,'$'
         LEN DW ?
+
+        ;Armazena o nome
+        NOME_LEN        db 24  		;Tamanho do buffer 24 char+return
+        NOME_LEN_ACT    db ?   		;Tamanho atual
+        NOME            db 24 DUP('$') 	;Buffer, 24 posições inicializadas com "$"
+
+        ;Armazena a idade
+        IDADE_LEN        db 3  		;Tamanho do buffer 24 char+return
+        IDADE_LEN_ACT    db ?   	;Tamanho atual
+        IDADE            db 3 DUP('$') 	;Buffer, 24 posições inicializadas com "$"      
 
         FILE_NAME DB 'registro.txt',0
         ATTR DW 0
