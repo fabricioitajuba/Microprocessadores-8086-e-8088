@@ -7,7 +7,8 @@
 ; Status: Ainda não concluído
 ;----------------------------------------------------
 
-BUFFER_HEADE_SIZE       EQU     512
+BUFFER_READ_SIZE        EQU     512
+BUFFER_REGISTRO_SIZE    EQU     32
 
 CGROUP  GROUP   CODE_SEG, DATA_SEG
         ASSUME  CS:CGROUP, DS:CGROUP
@@ -82,6 +83,17 @@ CRUD_CREATE:
         CALL    STR_PRINT
         CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
 
+        ;Inicializando o buffer de registro
+        MOV     SI, 0
+        MOV     AL, '*'
+        MOV     BUFFER_REGISTRO[SI], AL
+        MOV     SI, 30
+        MOV     AL, CR
+        MOV     BUFFER_REGISTRO[SI], AL
+        MOV     SI, 31
+        MOV     AL, LF
+        MOV     BUFFER_REGISTRO[SI], AL              
+
         JMP     INICIO_PROGRAMA
 ;-------------------------------------------------------
 ; FIM CREATE
@@ -97,8 +109,6 @@ CRUD_CREATE:
                                                 ;HANDLE_IN possui o número do arquivo
         MOV     AL, TRUE                        ;Configura que o arquivo
         MOV     FLAG, AL                        ;Já foi criado.
-        ;LEA     DX, FILE_MSG_OPEN               ;Se TRUE
-        ;CALL    STR_PRINT                       ;imprime a mensagem
         JMP     INSERE_DADOS                    ;Insere dados
 
 CRIA_ARQUIVO:
@@ -110,8 +120,6 @@ CRIA_ARQUIVO:
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
         JE      SAI_DOS                         ;Se FALSE, sai para o DOS
                                                 ;HANDLE_IN possui o número do arquivo
-        ;LEA     DX, FILE_MSG_CREATE             ;Se TRUE
-        ;CALL    STR_PRINT                       ;imprime a mensagem
         JMP     FECHA_ARQUIVO                   ;Fecha o arquivo.
 
 INSERE_DADOS:
@@ -127,8 +135,6 @@ INSERE_DADOS:
         MOV     AL, FILE_STATUS                 ;Verifica 
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
         JE      FECHA_ARQUIVO                   ;Se FALSE, fecha o arquivo e sai para o DOS
-        ;LEA     DX, FILE_MSG_POINTER_END        ;Se TRUE
-        ;CALL    STR_PRINT                       ;imprime a mensagem
 
         ;Prepara os dados que serão inseridos
         CALL    STR_LEN                         ;Passa TEXTO como parâmetro
@@ -142,8 +148,6 @@ INSERE_DADOS:
         MOV     AL, FILE_STATUS                 ;Verifica
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
         JE      FECHA_ARQUIVO                   ;Se FALSE, sai para o DOS
-        ;LEA     DX, FILE_MSG_INSERT             ;Se TRUE
-        ;CALL    STR_PRINT                       ;imprime a mensagem
 
         ;Posiciona o ponteiro do arquivo no início do arquivo
         MOV     AL, 00H                         ;Posiciona o ponteiro
@@ -157,13 +161,11 @@ INSERE_DADOS:
         MOV     AL, FILE_STATUS                 ;Verifica 
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
         JE      FECHA_ARQUIVO                   ;Se FALSE, fecha o arquivo e sai para o DOS
-        ;LEA     DX, FILE_MSG_POINTER_INI        ;Se TRUE
-        ;CALL    STR_PRINT                       ;imprime a mensagem
 
         ;Faz a leitura do arquivo:
         MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
         MOV     HANDLE_IN, AX                   ;arquivo.
-        MOV     AX, BUFFER_HEADE_SIZE           ;Configura o número
+        MOV     AX, BUFFER_READ_SIZE            ;Configura o número
         MOV     BUFFER_READ_LEN, AX             ;de bytes para serem lidos.
         CALL    FILE_READ                       ;Tenta fazer a leitura do arquivo.
         MOV     AL, FILE_STATUS                 ;Verifica
@@ -185,8 +187,6 @@ FECHA_ARQUIVO:
         MOV     AL, FILE_STATUS                 ;Verifica
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
         JE      SAI_DOS                         ;Se FALSE, sai para o DOS
-        ;LEA     DX, FILE_MSG_CLOSE              ;Se TRUE
-        ;CALL    STR_PRINT                       ;imprime a mensagem
 
         MOV     AL, FLAG                        ;Testa se
         CMP     AL, TRUE                        ;o arquivo foi
@@ -224,12 +224,15 @@ DATA_SEG       SEGMENT PUBLIC
         FILE_NBYTES_H DW ?
         FILE_NBYTES_L DW ?
         FILE_MODE DB ?
-        BUFFER_READ DB BUFFER_HEADE_SIZE DUP('$')       ;Buffer de leitura do arquivo
-        BUFFER_READ_LEN DW ?                            ;Quantidade de bytes a serem lidos
+  
+        BUFFER_READ DB BUFFER_READ_SIZE DUP('$')                ;Buffer de leitura do arquivo
+        BUFFER_READ_LEN DW ?                                    ;Quantidade de bytes a serem lidos
 
-        EXTERN FILE_STATUS:BYTE                         ;Recebe a variável externa        
-        EXTERN HANDLE_OUT:WORD                          ;Recebe a variável externa
-        EXTERN STR_LENGHT:WORD                          ;tamanho do texto
+        BUFFER_REGISTRO DB BUFFER_REGISTRO_SIZE DUP(' ')        ;Buffer de registro
+
+        EXTERN FILE_STATUS:BYTE                                 ;Recebe a variável externa        
+        EXTERN HANDLE_OUT:WORD                                  ;Recebe a variável externa
+        EXTERN STR_LENGHT:WORD                                  ;tamanho do texto
 
         ;Mensagens
         CRUD_MSG_INI1 DB CR,LF,'---------------------------------',CR,LF,'$'
