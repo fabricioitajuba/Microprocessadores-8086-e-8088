@@ -4,11 +4,11 @@
 ; $ NMAKE
 ; $ exe2bin proj05 proj05.com
 ; Autor: Eng. Fabrício Ribeiro
-; Status: Ainda não concluído
+; Status: Criar dados finalizado
 ;----------------------------------------------------
 
 BUFFER_READ_SIZE        EQU     512
-BUFFER_REGISTRO_SIZE    EQU     32
+BUFFER_WRITE_SIZE       EQU     32
 
 CGROUP  GROUP   CODE_SEG, DATA_SEG
         ASSUME  CS:CGROUP, DS:CGROUP
@@ -55,15 +55,7 @@ MAIN	PROC NEAR
         CALL    FILE_CREATE
         MOV     AL, FILE_STATUS
         CMP     AL, FALSE
-        JE      SAI_DOS
-        
-        ;Fecha o arquivo
-        MOV     AX, HANDLE_OUT
-        MOV     HANDLE_IN, AX
-        CALL    FILE_CLOSE
-        MOV     AL, FILE_STATUS
-        CMP     AL, FALSE
-        JE      SAI_DOS
+        JE      SAI_DOS      
 
 INICIO_PROGRAMA:
 
@@ -86,19 +78,7 @@ INICIO_PROGRAMA:
         JE      CRUD_CREATE
         CMP     AL,'Q'
         JE      SAI_DOS
-
-
-        ;Inicializando o buffer de registro
-        MOV     SI, 0
-        MOV     AL, '*'
-        MOV     BUFFER_REGISTRO[SI], AL
-        MOV     SI, 30
-        MOV     AL, CR
-        MOV     BUFFER_REGISTRO[SI], AL
-        MOV     SI, 31
-        MOV     AL, LF
-        MOV     BUFFER_REGISTRO[SI], AL 
-                
+              
         JMP     INICIO_PROGRAMA
 
 
@@ -112,26 +92,38 @@ CRUD_CREATE:
         LEA     DX, CRUD_MSG_CREATE_NOME
         CALL    STR_PRINT
         
-	LEA     DX, NOME_LEN                    ;Lê a string NOME
+	LEA     DX, NOME_LEN                    ;Lê NOME
 	MOV     AH, 0AH
 	INT     21H
 
-	LEA     DX, IDADE_LEN                   ;Lê a string NOME
-	MOV     AH, 0AH
-	INT     21H
-
-        LEA     DX, CRUD_MSG_CREATE_SUCESSO
+        LEA     DX, CRUD_MSG_CREATE_IDADE
         CALL    STR_PRINT
 
-        CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
-           
+	LEA     DX, IDADE_LEN                   ;Lê IDADE
+	MOV     AH, 0AH
+	INT     21H
 
-        JMP     INICIO_PROGRAMA
-;-------------------------------------------------------
-; FIM CREATE
-;-------------------------------------------------------
+        ;Prepara os dados que serão inseridos
 
-INSERE_DADOS:
+        ;Limpa o registro
+        CALL    REGISTRO_CLEAR   
+
+        ;Copia o nome para o registro
+        LEA     SI, NOME
+        LEA     DI, BUFFER_WRITE+1
+        XOR     CX, CX
+        MOV     CL, NOME_LEN_ACT
+        CLD
+        REP     MOVSB
+
+        ;Copia a idade para o registro
+        LEA     SI, IDADE
+        LEA     DI, BUFFER_WRITE+27
+        XOR     CX, CX
+        MOV     CL, IDADE_LEN_ACT
+        CLD
+        REP     MOVSB
+
         ;Posiciona o ponteiro do arquivo no final do arquivo
         MOV     AL, 02H                         ;Posiciona o ponteiro
         MOV     FILE_ORIGIN, AL                 ;no FINAL do arquivo;
@@ -143,20 +135,29 @@ INSERE_DADOS:
         CALL    FILE_POINTER                    ;Tenta posicionar o ponteiro.
         MOV     AL, FILE_STATUS                 ;Verifica 
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        ;JE      FECHA_ARQUIVO                   ;Se FALSE, fecha o arquivo e sai para o DOS
+        JE      SAI_DOS                         ;Se FALSE, fecha o arquivo e sai para o DOS
 
-        ;Prepara os dados que serão inseridos
-        CALL    STR_LEN                         ;Passa TEXTO como parâmetro
-        MOV     AX, STR_LENGHT                  ;Número de bytes
-
-        ;Insere dados no arquivo
-        MOV     LEN, AX                         ;Configura o número de bytes
+        ;Insere dados no arquivo        
+        MOV     AX, BUFFER_WRITE_SIZE           ;Número de bytes
+        MOV     BUFFER_WRITE_LEN, AX            ;Configura o número de bytes
         MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
         MOV     HANDLE_IN, AX                   ;arquivo.
         CALL    FILE_INSERT                     ;Insere dados no arquivo
         MOV     AL, FILE_STATUS                 ;Verifica
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        ;JE      FECHA_ARQUIVO                   ;Se FALSE, sai para o DOS
+        JE      SAI_DOS                         ;Se FALSE, sai para o DOS
+
+        LEA     DX, CRUD_MSG_CREATE_SUCESSO
+        CALL    STR_PRINT
+        CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
+
+        JMP     INICIO_PROGRAMA
+;-------------------------------------------------------
+; FIM CREATE
+;-------------------------------------------------------
+
+INSERE_DADOS:
+
 
         ;Posiciona o ponteiro do arquivo no início do arquivo
         MOV     AL, 00H                         ;Posiciona o ponteiro
@@ -189,42 +190,58 @@ INSERE_DADOS:
         CALL    STR_PRINT                       ;arquivo.
 
 SAI_DOS:
-	MOV     AH, 4CH                         ;Retorna ao
-	INT     21H                             ;MS-DOS
+        ;Fecha o arquivo
+        MOV     AX, HANDLE_OUT
+        MOV     HANDLE_IN, AX
+        CALL    FILE_CLOSE
+        ;MOV     AL, FILE_STATUS
+        ;CMP     AL, FALSE
+        ;JE      SAI_DOS
+
+        ;Retorna ao sistema operacional
+	MOV     AH, 4CH
+	INT     21H
 
 MAIN 	ENDP
 
 ;****************************************************************
 ; REGISTRO_CLEAR
 ; Esta rotina abre um arquivo já criado para leitura ou escrita
+; Total: 32 BYTES
+;  1B - SINALIZAÇÃO
+; 26B - nome
+;  3B - IDADE
+;  1B - CR
+;  1B - LF
 ;****************************************************************
 
-                PUBLIC  FILE_APPEND
+REGISTRO_CLEAR     PROC    NEAR
 
-FILE_APPEND     PROC    NEAR
+        ;Inicializando o buffer de registro
+        MOV     SI, 0
+        MOV     AL, '*'
+        MOV     BUFFER_WRITE[SI], AL
 
-                PUSH    AX
-                PUSH    DX
+        XOR     CX, CX
+        MOV     CX, 29
 
-                MOV     AL, FILE_MODE
-                LEA     DX, FILE_NAME
-                MOV     AH, 3DH
-                INT     21H
-                JC      FILE_APPEND_ERROR
-                MOV     HANDLE_OUT,AX
-                MOV     AL,TRUE
-                MOV     FILE_STATUS,AL
-                JMP     FILE_APPEND_END
-FILE_APPEND_ERROR:
-                MOV     AL,FALSE
-                MOV     FILE_STATUS,AL
+REGISTRO_CLEAR_LOOP:        
+        INC     SI
+        MOV     AL, ' '
+        MOV     BUFFER_WRITE[SI], AL
+        LOOP    REGISTRO_CLEAR_LOOP
 
-FILE_APPEND_END:
-                POP     DX
-                POP     AX
-                RET
+        MOV     SI, 30
+        MOV     AL, CR
+        MOV     BUFFER_WRITE[SI], AL
 
-FILE_APPEND     ENDP
+        MOV     SI, 31
+        MOV     AL, LF
+        MOV     BUFFER_WRITE[SI], AL 
+
+        RET
+
+REGISTRO_CLEAR     ENDP
 
 CODE_SEG	ENDS
 
@@ -232,23 +249,20 @@ CODE_SEG	ENDS
 ; ÁREA DE DADOS
 ;****************************************************************
 
-        PUBLIC FILE_NAME, ATTR, HANDLE_IN, TEXTO, LEN, FILE_ORIGIN, FILE_MODE
-        PUBLIC FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN
+        PUBLIC FILE_NAME, ATTR, HANDLE_IN, BUFFER_WRITE, BUFFER_WRITE_LEN, FILE_ORIGIN
+        PUBLIC FILE_MODE, FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN
 
 DATA_SEG       SEGMENT PUBLIC
 
-        TEXTO DB 'Esse eh o texto inserido no arquivo!',CR,LF,'$'
-        LEN DW ?
-
         ;Armazena o nome
-        NOME_LEN        db 24  		;Tamanho do buffer 24 char+return
+        NOME_LEN        db 27  		;Tamanho do buffer 27 char+return
         NOME_LEN_ACT    db ?   		;Tamanho atual
-        NOME            db 24 DUP('$') 	;Buffer, 24 posições inicializadas com "$"
+        NOME            db 27 DUP(' ') 	;Buffer, 27 posições inicializadas com " "
 
         ;Armazena a idade
-        IDADE_LEN        db 3  		;Tamanho do buffer 24 char+return
+        IDADE_LEN        db 4  		;Tamanho do buffer 4 char+return
         IDADE_LEN_ACT    db ?   	;Tamanho atual
-        IDADE            db 3 DUP('$') 	;Buffer, 24 posições inicializadas com "$"      
+        IDADE            db 4 DUP(' ') 	;Buffer, 4 posições inicializadas com " "      
 
         FILE_NAME DB 'registro.txt',0
         ATTR DW 0
@@ -257,11 +271,14 @@ DATA_SEG       SEGMENT PUBLIC
         FILE_NBYTES_H DW ?
         FILE_NBYTES_L DW ?
         FILE_MODE DB ?
-  
-        BUFFER_READ DB BUFFER_READ_SIZE DUP('$')                ;Buffer de leitura do arquivo
-        BUFFER_READ_LEN DW ?                                    ;Quantidade de bytes a serem lidos
 
-        BUFFER_REGISTRO DB BUFFER_REGISTRO_SIZE DUP(' ')        ;Buffer de registro
+        ;TEXTO DB 'Esse eh o texto inserido no arquivo!',CR,LF,'$'
+        ;LEN DW ?
+        BUFFER_WRITE DB BUFFER_WRITE_SIZE DUP('$')                ;Buffer de leitura do arquivo
+        BUFFER_WRITE_LEN DW BUFFER_READ_SIZE                     ;Quantidade de bytes a serem lidos
+
+        BUFFER_READ DB BUFFER_READ_SIZE DUP('$')                ;Buffer de leitura do arquivo
+        BUFFER_READ_LEN DW BUFFER_READ_SIZE                     ;Quantidade de bytes a serem lidos
 
         EXTERN FILE_STATUS:BYTE                                 ;Recebe a variável externa        
         EXTERN HANDLE_OUT:WORD                                  ;Recebe a variável externa

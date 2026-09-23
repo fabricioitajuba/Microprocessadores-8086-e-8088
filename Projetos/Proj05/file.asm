@@ -91,8 +91,8 @@ FILE_INSERT     PROC    NEAR
                 PUSH    DX
 
                 MOV     BX,HANDLE_IN
-                MOV     CX,LEN
-                LEA     DX,TEXTO
+                MOV     CX,BUFFER_WRITE_LEN
+                LEA     DX,BUFFER_WRITE
                 MOV     AH,40H
                 INT     21H
                 JC      FILE_INSERT_ERROR
@@ -321,8 +321,9 @@ DATA_SEG        SEGMENT PUBLIC
                 EXTERN FILE_NBYTES_H:WORD
                 EXTERN FILE_NBYTES_L:WORD
                 EXTERN FILE_MODE:BYTE
-                EXTERN TEXTO:BYTE
-                EXTERN LEN:WORD
+                
+                EXTERN BUFFER_WRITE:BYTE
+                EXTERN BUFFER_WRITE_LEN:WORD
                 EXTERN BUFFER_READ:BYTE
                 EXTERN BUFFER_READ_LEN:WORD
 
