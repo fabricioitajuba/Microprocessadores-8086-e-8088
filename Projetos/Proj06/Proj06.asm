@@ -18,6 +18,7 @@ CODE_SEG	SEGMENT PUBLIC
 
 	;Carrega funções externas
         EXTRN   GET_TIME:NEAR
+        EXTRN   GET_DATA:NEAR
         EXTRN   HEXA2DECIMAL:NEAR
         EXTRN   CAR_PRINT:NEAR
 
@@ -27,6 +28,7 @@ CODE_SEG	SEGMENT PUBLIC
 MAIN	PROC NEAR
 
         CALL    GET_TIME
+
         MOV     AL, HORA 
         CALL    HEXA2DECIMAL
         MOV     DL, DEZENA
@@ -70,9 +72,56 @@ MAIN	PROC NEAR
         CALL    CAR_PRINT
         MOV     DL, UNIDADE
         ADD     DL, '0'
-        CALL    CAR_PRINT        
+        CALL    CAR_PRINT     
+
         MOV     DL, '-'
         CALL    CAR_PRINT                
+
+        CALL    GET_DATA
+
+        MOV     AL, DIA 
+        CALL    HEXA2DECIMAL
+        MOV     DL, DEZENA
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        MOV     DL, UNIDADE
+        ADD     DL, '0'
+        CALL    CAR_PRINT  
+
+        MOV     DL, '/'
+        CALL    CAR_PRINT  
+
+        MOV     AL, MES 
+        CALL    HEXA2DECIMAL
+        MOV     DL, DEZENA
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        MOV     DL, UNIDADE
+        ADD     DL, '0'
+        CALL    CAR_PRINT  
+
+        MOV     DL, '/'
+        CALL    CAR_PRINT  
+
+        MOV     CX, ANO
+        MOV     AL, CH
+        CALL    HEXA2DECIMAL
+        MOV     DL, DEZENA
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        MOV     DL, UNIDADE
+        ADD     DL, '0'
+        CALL    CAR_PRINT     
+
+        MOV     AL, CL
+        CALL    HEXA2DECIMAL
+        MOV     DL, DEZENA
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        MOV     DL, UNIDADE
+        ADD     DL, '0'
+        CALL    CAR_PRINT         
+
 
 SAI_DOS:
 	MOV     AH,4CH                  ;Retorna ao
@@ -101,6 +150,11 @@ DATA_SEG       SEGMENT PUBLIC
         EXTERN SEGUNDO:BYTE
         EXTERN CENTESIMO:BYTE
 
+        EXTERN DIA_SEMANA:BYTE
+        EXTERN MES:BYTE
+        EXTERN DIA:BYTE
+        EXTERN ANO:WORD
+        
 DATA_SEG       ENDS
 
         END     MAIN
