@@ -1,0 +1,17 @@
+001 23/08/2026-21:24:13 Fabricio de Lima Ribeiro            50  CRLF
+                        
+64 bytes
+
+ bytes
+  0-2 - ID
+    3 - "Espaço"
+ 4-13 - Data
+   14 - "-"
+15-22 - Hora
+   23 - "Espaço"
+24-58 - Nome    (35 BYTES)
+59-61 - Idade
+   62 - CR
+   63 - LF
+   
+

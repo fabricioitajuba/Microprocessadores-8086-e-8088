@@ -8,7 +8,7 @@
 ;----------------------------------------------------
 
 BUFFER_READ_SIZE        EQU     512
-BUFFER_WRITE_SIZE       EQU     32
+BUFFER_WRITE_SIZE       EQU     64
 
 CGROUP  GROUP   CODE_SEG, DATA_SEG
         ASSUME  CS:CGROUP, DS:CGROUP
@@ -25,6 +25,11 @@ CODE_SEG	SEGMENT PUBLIC
         EXTRN   STR_PRINT:NEAR
         EXTRN   STR_LEN:NEAR
         EXTRN   STR_LEN:NEAR
+
+        EXTRN   GET_TIME:NEAR
+        EXTRN   GET_DATA:NEAR
+        EXTRN   HEXA2DECIMAL:NEAR
+        EXTRN   HEXA2DECIMAL16:NEAR
 
         EXTRN   CLR_SCREEN:NEAR
 
@@ -108,9 +113,12 @@ CRUD_CREATE:
         ;Limpa o registro
         CALL    REGISTRO_CLEAR   
 
+        MOV     AL,'-'
+        MOV     BUFFER_WRITE+14, AL
+
         ;Copia o nome para o registro
         LEA     SI, NOME
-        LEA     DI, BUFFER_WRITE+1
+        LEA     DI, BUFFER_WRITE+24
         XOR     CX, CX
         MOV     CL, NOME_LEN_ACT
         CLD
@@ -118,11 +126,92 @@ CRUD_CREATE:
 
         ;Copia a idade para o registro
         LEA     SI, IDADE
-        LEA     DI, BUFFER_WRITE+27
+        LEA     DI, BUFFER_WRITE+59
         XOR     CX, CX
         MOV     CL, IDADE_LEN_ACT
         CLD
         REP     MOVSB
+
+        ;Adiciona Data
+        CALL    GET_DATA
+
+        ;Dia
+        MOV     AL, DIA 
+        CALL    HEXA2DECIMAL
+        MOV     AL, DEZENA
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+4, AL
+        MOV     AL, UNIDADE
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+5, AL
+        MOV     AL, '/'
+        MOV     BUFFER_WRITE+6, AL  
+
+        ;Mês
+        MOV     AL, MES 
+        CALL    HEXA2DECIMAL
+        MOV     AL, DEZENA
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+7, AL
+        MOV     AL, UNIDADE
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+8, AL
+        MOV     AL, '/'
+        MOV     BUFFER_WRITE+9, AL        
+
+        ;Ano
+        MOV     AX, ANO
+        MOV     NUM_NEXA, AX
+        CALL    HEXA2DECIMAL16
+        MOV     AL, DIGITOS+1
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+10, AL
+        MOV     AL, DIGITOS+2
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+11, AL
+        MOV     AL, DIGITOS+3
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+12, AL
+        MOV     AL, DIGITOS+4
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+13, AL
+
+        ;Adiciona Hora
+        CALL    GET_TIME
+
+        ;Hora
+        MOV     AL, HORA 
+        CALL    HEXA2DECIMAL
+        MOV     AL, DEZENA
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+15, AL
+        MOV     AL, UNIDADE
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+16, AL
+        MOV     AL, ':'
+        MOV     BUFFER_WRITE+17, AL
+
+        ;Minuto
+        MOV     AL, MINUTO 
+        CALL    HEXA2DECIMAL
+        MOV     AL, DEZENA
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+18, AL
+        MOV     AL, UNIDADE
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+19, AL
+        MOV     AL, ':'
+        MOV     BUFFER_WRITE+20, AL        
+
+        ;Segundo
+        MOV     AL, SEGUNDO
+        CALL    HEXA2DECIMAL
+        MOV     AL, DEZENA
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+21, AL
+        MOV     AL, UNIDADE
+        ADD     AL, '0'
+        MOV     BUFFER_WRITE+22, AL
 
         ;Posiciona o ponteiro do arquivo no final do arquivo
         MOV     AL, 02H                         ;Posiciona o ponteiro
@@ -206,36 +295,29 @@ MAIN 	ENDP
 
 ;****************************************************************
 ; REGISTRO_CLEAR
-; Esta rotina abre um arquivo já criado para leitura ou escrita
-; Total: 32 BYTES
-;  1B - SINALIZAÇÃO
-; 26B - nome
-;  3B - IDADE
-;  1B - CR
-;  1B - LF
+; Esta rotina limpa o registro
 ;****************************************************************
 
 REGISTRO_CLEAR     PROC    NEAR
 
         ;Inicializando o buffer de registro
         MOV     SI, 0
-        MOV     AL, '*'
-        MOV     BUFFER_WRITE[SI], AL
 
         XOR     CX, CX
-        MOV     CX, 29
+        MOV     CX, 62
 
 REGISTRO_CLEAR_LOOP:        
-        INC     SI
+
         MOV     AL, ' '
         MOV     BUFFER_WRITE[SI], AL
+        INC     SI
         LOOP    REGISTRO_CLEAR_LOOP
 
-        MOV     SI, 30
+        MOV     SI, 62
         MOV     AL, CR
         MOV     BUFFER_WRITE[SI], AL
 
-        MOV     SI, 31
+        MOV     SI, 63
         MOV     AL, LF
         MOV     BUFFER_WRITE[SI], AL 
 
@@ -250,14 +332,14 @@ CODE_SEG	ENDS
 ;****************************************************************
 
         PUBLIC FILE_NAME, ATTR, HANDLE_IN, BUFFER_WRITE, BUFFER_WRITE_LEN, FILE_ORIGIN
-        PUBLIC FILE_MODE, FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN
+        PUBLIC FILE_MODE, FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN, NUM_NEXA
 
 DATA_SEG       SEGMENT PUBLIC
 
         ;Armazena o nome
-        NOME_LEN        db 27  		;Tamanho do buffer 27 char+return
+        NOME_LEN        db 36  		;Tamanho do buffer 36 char+return
         NOME_LEN_ACT    db ?   		;Tamanho atual
-        NOME            db 27 DUP(' ') 	;Buffer, 27 posições inicializadas com " "
+        NOME            db 36 DUP(' ') 	;Buffer, 27 posições inicializadas com " "
 
         ;Armazena a idade
         IDADE_LEN        db 4  		;Tamanho do buffer 4 char+return
@@ -301,6 +383,23 @@ DATA_SEG       SEGMENT PUBLIC
         CRUD_MSG_CREATE_SUCESSO DB CR,LF,'# Registro criado com sucesso!','$'
 
         FILE_MSG_READ DB CR,LF,'### Conteudo do arquivo:',CR,LF,'$'
+
+        ;Variáveis referentes a data e hora
+        NUM_NEXA dw ?
+        EXTERN DIGITOS:BYTE
+
+        EXTERN UNIDADE:BYTE
+        EXTERN DEZENA:BYTE
+
+        EXTERN HORA:BYTE
+        EXTERN MINUTO:BYTE
+        EXTERN SEGUNDO:BYTE
+        EXTERN CENTESIMO:BYTE
+
+        EXTERN DIA_SEMANA:BYTE
+        EXTERN MES:BYTE
+        EXTERN DIA:BYTE
+        EXTERN ANO:WORD
 
 DATA_SEG       ENDS
 
