@@ -1,10 +1,10 @@
 ;****************************************************************
 ; Essas rotinas manipulam strings
 ;
+; CAR_READ  - Espeça uma tela ser pressionada;
 ; CAR_PRINT - Imprime um caracter na tela;
 ; STR_PRINT - Imprime uma string na tela;
 ; STR_LEN - Calcula o número de bytes de uma string;
-; STR_CMP - Compara duas strings;
 ;****************************************************************
 
 CGROUP          GROUP   CODE_SEG, DATA_SEG
@@ -13,6 +13,26 @@ CGROUP          GROUP   CODE_SEG, DATA_SEG
 CODE_SEG        SEGMENT PUBLIC
 
                 INCLUDE CONST.INC
+
+;****************************************************************
+; CAR_READ
+; Esta rotina aguarda uma tecla ser pressionada
+; Entrada: AL - Código ASCII da tela
+;****************************************************************
+
+                PUBLIC  CAR_READ
+
+CAR_READ        PROC    NEAR
+
+                MOV     AH, 07H
+	            INT     21H
+
+                RET
+
+CAR_READ        ENDP                
+;----------------------------------------------------------------
+; FIM CAR_PRINT
+;----------------------------------------------------------------
 
 ;****************************************************************
 ; CAR_PRINT
@@ -35,7 +55,6 @@ IMPRESSO:       MOV     AH, 02H
                 RET
 
 CAR_PRINT       ENDP                
-
 ;----------------------------------------------------------------
 ; FIM CAR_PRINT
 ;----------------------------------------------------------------
@@ -61,7 +80,6 @@ STR_PRINT       PROC    NEAR
                 RET
 
 STR_PRINT       ENDP
-
 ;----------------------------------------------------------------
 ; FIM FILE_CLOSE
 ;----------------------------------------------------------------
@@ -151,7 +169,7 @@ STR_CMP_END:    POP     DI
 
 STR_CMP         ENDP
 ;----------------------------------------------------------------
-; FIM STR_LEN
+; FIM STR_CMP
 ;----------------------------------------------------------------
 
 CODE_SEG        ENDS
@@ -163,12 +181,14 @@ CODE_SEG        ENDS
 
 DATA_SEG        SEGMENT PUBLIC
 
-                STR_LENGHT  DW  ?
-                STR_COMPARE  DB  ?
-                EXTERN STRING1:BYTE
-                EXTERN STRING2:BYTE
-                EXTERN TEXTO:BYTE   ;Recebe a variável externa
-                EXTERN CAR:BYTE     ;Recebe a variável externa
+                STR_LENGHT  DW ?
+                STR_COMPARE  DB ?
+                STRING1  DB ?
+                STRING2  DB ?
+                ;EXTERN TEXTO:BYTE  ;Recebe a variável externa
+                TEXTO  DB ?         ;Recebe a variável externa
+                ;EXTERN CAR:BYTE    ;Recebe a variável externa
+                CAR DB ?            ;Recebe a variável externa
                 
 DATA_SEG        ENDS
 
