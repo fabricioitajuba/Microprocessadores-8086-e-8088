@@ -4,7 +4,6 @@
 ; $ NMAKE
 ; $ exe2bin proj06 proj06.com
 ; Autor: Eng. Fabrício Ribeiro
-; Status: Não Concluído!
 ;----------------------------------------------------
 
 CGROUP  GROUP   CODE_SEG, DATA_SEG
@@ -20,6 +19,7 @@ CODE_SEG	SEGMENT PUBLIC
         EXTRN   GET_TIME:NEAR
         EXTRN   GET_DATA:NEAR
         EXTRN   HEXA2DECIMAL:NEAR
+        EXTRN   HEXA2DECIMAL16:NEAR
         EXTRN   CAR_PRINT:NEAR
 
 ;...........................
@@ -62,17 +62,17 @@ MAIN	PROC NEAR
         ADD     DL, '0'
         CALL    CAR_PRINT
 
-        MOV     DL, ':'
-        CALL    CAR_PRINT        
+        ; MOV     DL, ':'
+        ; CALL    CAR_PRINT        
         
-        MOV     AL, CENTESIMO 
-        CALL    HEXA2DECIMAL
-        MOV     DL, DEZENA
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, UNIDADE
-        ADD     DL, '0'
-        CALL    CAR_PRINT     
+        ; MOV     AL, CENTESIMO 
+        ; CALL    HEXA2DECIMAL
+        ; MOV     DL, DEZENA
+        ; ADD     DL, '0'
+        ; CALL    CAR_PRINT
+        ; MOV     DL, UNIDADE
+        ; ADD     DL, '0'
+        ; CALL    CAR_PRINT     
 
         MOV     DL, '-'
         CALL    CAR_PRINT                
@@ -103,25 +103,24 @@ MAIN	PROC NEAR
         MOV     DL, '/'
         CALL    CAR_PRINT  
 
-        MOV     CX, ANO
-        MOV     AL, CH
-        CALL    HEXA2DECIMAL
-        MOV     DL, DEZENA
+        MOV     AX, ANO
+        MOV     NUM_NEXA, AX
+        CALL    HEXA2DECIMAL16
+        ;MOV     DL, DIGITOS
+        ;ADD     DL, '0'        
+        ;CALL    CAR_PRINT
+        MOV     DL, DIGITOS+1
         ADD     DL, '0'
         CALL    CAR_PRINT
-        MOV     DL, UNIDADE
+        MOV     DL, DIGITOS+2
         ADD     DL, '0'
-        CALL    CAR_PRINT     
-
-        MOV     AL, CL
-        CALL    HEXA2DECIMAL
-        MOV     DL, DEZENA
+        CALL    CAR_PRINT                
+        MOV     DL, DIGITOS+3
         ADD     DL, '0'
         CALL    CAR_PRINT
-        MOV     DL, UNIDADE
+        MOV     DL, DIGITOS+4
         ADD     DL, '0'
-        CALL    CAR_PRINT         
-
+        CALL    CAR_PRINT        
 
 SAI_DOS:
 	MOV     AH,4CH                  ;Retorna ao
@@ -135,12 +134,14 @@ CODE_SEG	ENDS
 ; ÁREA DE DADOS
 ;****************************************************************
 
-        PUBLIC  TEXTO, CAR
+        PUBLIC  TEXTO, CAR, NUM_NEXA
 
 DATA_SEG       SEGMENT PUBLIC
 
         TEXTO DB ?
         CAR DB ?
+        NUM_NEXA dw ?
+        EXTERN DIGITOS:BYTE
 
         EXTERN UNIDADE:BYTE
         EXTERN DEZENA:BYTE
