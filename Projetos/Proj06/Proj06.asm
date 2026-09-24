@@ -17,110 +17,23 @@ CODE_SEG	SEGMENT PUBLIC
 
 	;Carrega funções externas
         EXTRN   GET_TIME:NEAR
-        EXTRN   GET_DATA:NEAR
-        EXTRN   HEXA2DECIMAL:NEAR
-        EXTRN   HEXA2DECIMAL16:NEAR
-        EXTRN   CAR_PRINT:NEAR
+        EXTRN   GET_DATA:NEAR        
+        EXTRN   STR_PRINT:NEAR
 
 ;...........................
 ; Programa principal
 ;...........................
 MAIN	PROC NEAR
 
+        ;Mostra a hora do sistema
         CALL    GET_TIME
+        LEA     DX, TIME_HORA
+        CALL    STR_PRINT
 
-        MOV     AL, HORA 
-        CALL    HEXA2DECIMAL
-        MOV     DL, DEZENA
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, UNIDADE
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-
-        MOV     DL, ':'
-        CALL    CAR_PRINT
-        
-        MOV     AL, MINUTO 
-        CALL    HEXA2DECIMAL
-        MOV     DL, DEZENA
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, UNIDADE
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-
-        MOV     DL, ':'
-        CALL    CAR_PRINT
-
-        MOV     AL, SEGUNDO 
-        CALL    HEXA2DECIMAL
-        MOV     DL, DEZENA
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, UNIDADE
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-
-        ; MOV     DL, ':'
-        ; CALL    CAR_PRINT        
-        
-        ; MOV     AL, CENTESIMO 
-        ; CALL    HEXA2DECIMAL
-        ; MOV     DL, DEZENA
-        ; ADD     DL, '0'
-        ; CALL    CAR_PRINT
-        ; MOV     DL, UNIDADE
-        ; ADD     DL, '0'
-        ; CALL    CAR_PRINT     
-
-        MOV     DL, '-'
-        CALL    CAR_PRINT                
-
-        CALL    GET_DATA
-
-        MOV     AL, DIA 
-        CALL    HEXA2DECIMAL
-        MOV     DL, DEZENA
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, UNIDADE
-        ADD     DL, '0'
-        CALL    CAR_PRINT  
-
-        MOV     DL, '/'
-        CALL    CAR_PRINT  
-
-        MOV     AL, MES 
-        CALL    HEXA2DECIMAL
-        MOV     DL, DEZENA
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, UNIDADE
-        ADD     DL, '0'
-        CALL    CAR_PRINT  
-
-        MOV     DL, '/'
-        CALL    CAR_PRINT  
-
-        MOV     AX, ANO
-        MOV     NUM_NEXA, AX
-        CALL    HEXA2DECIMAL16
-        ;MOV     DL, DIGITOS
-        ;ADD     DL, '0'        
-        ;CALL    CAR_PRINT
-        MOV     DL, DIGITOS+1
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, DIGITOS+2
-        ADD     DL, '0'
-        CALL    CAR_PRINT                
-        MOV     DL, DIGITOS+3
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, DIGITOS+4
-        ADD     DL, '0'
-        CALL    CAR_PRINT        
+        ;Mostra a data do sistema
+        CALL    GET_DATA 
+        LEA     DX, TIME_DATA
+        CALL    STR_PRINT        
 
 SAI_DOS:
 	MOV     AH,4CH                  ;Retorna ao
@@ -134,28 +47,13 @@ CODE_SEG	ENDS
 ; ÁREA DE DADOS
 ;****************************************************************
 
-        PUBLIC  TEXTO, CAR, NUM_NEXA
+        ;PUBLIC  TEXTO, CAR, NUM_NEXA
 
 DATA_SEG       SEGMENT PUBLIC
 
-        TEXTO DB ?
-        CAR DB ?
-        NUM_NEXA dw ?
-        EXTERN DIGITOS:BYTE
-
-        EXTERN UNIDADE:BYTE
-        EXTERN DEZENA:BYTE
-
-        EXTERN HORA:BYTE
-        EXTERN MINUTO:BYTE
-        EXTERN SEGUNDO:BYTE
-        EXTERN CENTESIMO:BYTE
-
-        EXTERN DIA_SEMANA:BYTE
-        EXTERN MES:BYTE
-        EXTERN DIA:BYTE
-        EXTERN ANO:WORD
-        
+        EXTERN TIME_HORA:BYTE
+        EXTERN TIME_DATA:BYTE
+      
 DATA_SEG       ENDS
 
         END     MAIN

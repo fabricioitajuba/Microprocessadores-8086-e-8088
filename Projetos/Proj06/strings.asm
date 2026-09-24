@@ -160,12 +160,14 @@ CODE_SEG        ENDS
 
 DATA_SEG        SEGMENT PUBLIC
 
-                STR_LENGHT  DW  ?
-                STR_COMPARE  DB  ?
-                STRING1  DB  ?
-                STRING2  DB  ?
-                EXTERN TEXTO:BYTE   ;Recebe a variável externa
-                EXTERN CAR:BYTE     ;Recebe a variável externa
+                STR_LENGHT  DW ?
+                STR_COMPARE  DB ?
+                STRING1  DB ?
+                STRING2  DB ?
+                ;EXTERN TEXTO:BYTE  ;Recebe a variável externa
+                TEXTO  DB ?         ;Recebe a variável externa
+                ;EXTERN CAR:BYTE    ;Recebe a variável externa
+                CAR DB ?            ;Recebe a variável externa
                 
 DATA_SEG        ENDS
 
