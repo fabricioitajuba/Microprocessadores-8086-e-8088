@@ -137,6 +137,14 @@ HEXA2DECIMAL16    PROC    NEAR
                 PUSH    DX
                 PUSH    DI
 
+                ;Zera as posições de DIGITOS
+                MOV     AL, 0
+                MOV     DIGITOS, AL
+                MOV     DIGITOS+1, AL
+                MOV     DIGITOS+2, AL
+                MOV     DIGITOS+3, AL
+                MOV     DIGITOS+4, AL
+
                 MOV     AX, NUM_NEXA   
                 MOV     BX, 10
                 LEA     DI, DIGITOS
