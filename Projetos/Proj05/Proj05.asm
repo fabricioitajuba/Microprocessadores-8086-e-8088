@@ -28,6 +28,7 @@ CODE_SEG	SEGMENT PUBLIC
         EXTRN   GET_DATA:NEAR
 
         EXTRN   CLR_SCREEN:NEAR
+        EXTRN   HEXA2DECIMAL16:NEAR
 
         EXTRN   FILE_CREATE:NEAR
         EXTRN   FILE_INSERT:NEAR
@@ -172,6 +173,62 @@ CRUD_CREATE:
 
         LEA     DX, CRUD_MSG_CREATE_SUCESSO
         CALL    STR_PRINT
+
+        LEA     DX, CRUD_MSG_TOTAL_BYTES
+        CALL    STR_PRINT
+
+        ;Calcula do tamanho de bytes
+        MOV     AH, 42H
+        MOV     AL, 2
+        MOV     BX, HANDLE_OUT
+        MOV     CX, 0
+        MOV     DX, 0
+        INT     21H
+        ; DX:AX agora contém o tamanho exato do arquivo em bytes!
+        MOV     NUM_NEXA, AX
+        CALL    HEXA2DECIMAL16
+        MOV     DL, DIGITOS
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        MOV     DL, DIGITOS+1
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        MOV     DL, DIGITOS+2
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        MOV     DL, DIGITOS+3
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        MOV     DL, DIGITOS+4
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        
+        ;Calcula do tamanho de registros
+        LEA     DX, CRUD_MSG_TOTAL_REGISTROS
+        CALL    STR_PRINT
+
+        MOV     AX, NUM_NEXA
+        MOV     BL, 64
+        DIV     BL
+
+        MOV     NUM_NEXA, AX
+        CALL    HEXA2DECIMAL16
+        MOV     DL, DIGITOS
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        MOV     DL, DIGITOS+1
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        MOV     DL, DIGITOS+2
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        MOV     DL, DIGITOS+3
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+        MOV     DL, DIGITOS+4
+        ADD     DL, '0'
+        CALL    CAR_PRINT
+
         CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
 
         JMP     INICIO_PROGRAMA
@@ -266,7 +323,7 @@ CODE_SEG	ENDS
 ;****************************************************************
 
         PUBLIC FILE_NAME, ATTR, HANDLE_IN, BUFFER_WRITE, BUFFER_WRITE_LEN, FILE_ORIGIN
-        PUBLIC FILE_MODE, FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN
+        PUBLIC FILE_MODE, FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN, NUM_NEXA
 
 DATA_SEG       SEGMENT PUBLIC
 
@@ -291,7 +348,7 @@ DATA_SEG       SEGMENT PUBLIC
         ;TEXTO DB 'Esse eh o texto inserido no arquivo!',CR,LF,'$'
         ;LEN DW ?
         BUFFER_WRITE DB BUFFER_WRITE_SIZE DUP('$')                ;Buffer de leitura do arquivo
-        BUFFER_WRITE_LEN DW BUFFER_READ_SIZE                     ;Quantidade de bytes a serem lidos
+        BUFFER_WRITE_LEN DW BUFFER_WRITE_SIZE                     ;Quantidade de bytes a serem lidos
 
         BUFFER_READ DB BUFFER_READ_SIZE DUP('$')                ;Buffer de leitura do arquivo
         BUFFER_READ_LEN DW BUFFER_READ_SIZE                     ;Quantidade de bytes a serem lidos
@@ -314,13 +371,18 @@ DATA_SEG       SEGMENT PUBLIC
         CRUD_MSG_CREATE DB CR,LF,'### Criar registro:',CR,LF,'$'
         CRUD_MSG_CREATE_NOME DB CR,LF,'- Digite o nome: ','$'
         CRUD_MSG_CREATE_IDADE DB CR,LF,'- Digite a idade: ','$'
-        CRUD_MSG_CREATE_SUCESSO DB CR,LF,'# Registro criado com sucesso!','$'
+        CRUD_MSG_CREATE_SUCESSO DB CR,LF,'# Registro criado com sucesso!',CR,LF,'$'
+        CRUD_MSG_TOTAL_BYTES DB CR,LF,CR,LF,'- Total de BYTES: ','$'
+        CRUD_MSG_TOTAL_REGISTROS DB CR,LF,'- Total de REGISTROS: ','$'
 
         FILE_MSG_READ DB CR,LF,'### Conteudo do arquivo:',CR,LF,'$'
 
         ;Variáveis referentes a data e hora
         EXTERN TIME_HORA:BYTE
         EXTERN TIME_DATA:BYTE
+
+        EXTERN DIGITOS:BYTE
+        NUM_NEXA DW  0
 
 DATA_SEG       ENDS
 
