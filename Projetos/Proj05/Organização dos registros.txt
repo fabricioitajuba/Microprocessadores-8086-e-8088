@@ -5,9 +5,9 @@
  bytes
   0-2 - ID
     3 - "Espaço"
- 4-13 - Data
+ 4-13 - Data    (10 BYTES)
    14 - "-"
-15-22 - Hora
+15-22 - Hora    ( 8 BYTES)
    23 - "Espaço"
 24-58 - Nome    (35 BYTES)
 59-61 - Idade

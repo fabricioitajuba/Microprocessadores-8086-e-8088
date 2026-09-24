@@ -26,7 +26,7 @@ CAR_PRINT       PROC    NEAR
                 PUSH    AX   
                 PUSH    DX
 
-                MOV     AH, 02H
+IMPRESSO:       MOV     AH, 02H
                 INT     21h
 
                 POP     DX
@@ -34,27 +34,6 @@ CAR_PRINT       PROC    NEAR
                 RET
 
 CAR_PRINT       ENDP                
-;----------------------------------------------------------------
-; FIM CAR_PRINT
-;----------------------------------------------------------------
-
-;****************************************************************
-; CAR_READ
-; Esta rotina faz a leitura de uma tecla do teclado
-; Saída: AL - Código ASCII do caracter
-; OBS: O conteúdo de AX é destruído
-;****************************************************************
-
-                PUBLIC  CAR_READ
-
-CAR_READ        PROC    NEAR
-
-                MOV     AH, 07H
-                INT     21h
-
-                RET
-
-CAR_READ        ENDP                
 ;----------------------------------------------------------------
 ; FIM CAR_PRINT
 ;----------------------------------------------------------------
@@ -181,12 +160,14 @@ CODE_SEG        ENDS
 
 DATA_SEG        SEGMENT PUBLIC
 
-                STR_LENGHT  DW  ?
-                STR_COMPARE  DB  ?
-                STRING1  DB  ?
-                STRING2  DB  ?
-                EXTERN TEXTO:BYTE   ;Recebe a variável externa
-                EXTERN CAR:BYTE     ;Recebe a variável externa
+                STR_LENGHT  DW ?
+                STR_COMPARE  DB ?
+                STRING1  DB ?
+                STRING2  DB ?
+                ;EXTERN TEXTO:BYTE  ;Recebe a variável externa
+                TEXTO  DB ?         ;Recebe a variável externa
+                ;EXTERN CAR:BYTE    ;Recebe a variável externa
+                CAR DB ?            ;Recebe a variável externa
                 
 DATA_SEG        ENDS
 

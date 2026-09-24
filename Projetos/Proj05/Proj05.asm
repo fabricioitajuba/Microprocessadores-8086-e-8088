@@ -4,7 +4,7 @@
 ; $ NMAKE
 ; $ exe2bin proj05 proj05.com
 ; Autor: Eng. Fabrício Ribeiro
-; Status: Criar dados finalizado
+; Status: Problemas após alterar a rotina de hora e data
 ;----------------------------------------------------
 
 BUFFER_READ_SIZE        EQU     512
@@ -23,13 +23,9 @@ CODE_SEG	SEGMENT PUBLIC
         EXTRN   CAR_READ:NEAR
         EXTRN   CAR_PRINT:NEAR
         EXTRN   STR_PRINT:NEAR
-        EXTRN   STR_LEN:NEAR
-        EXTRN   STR_LEN:NEAR
 
         EXTRN   GET_TIME:NEAR
         EXTRN   GET_DATA:NEAR
-        EXTRN   HEXA2DECIMAL:NEAR
-        EXTRN   HEXA2DECIMAL16:NEAR
 
         EXTRN   CLR_SCREEN:NEAR
 
@@ -134,84 +130,22 @@ CRUD_CREATE:
 
         ;Adiciona Data
         CALL    GET_DATA
-
-        ;Dia
-        MOV     AL, DIA 
-        CALL    HEXA2DECIMAL
-        MOV     AL, DEZENA
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+4, AL
-        MOV     AL, UNIDADE
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+5, AL
-        MOV     AL, '/'
-        MOV     BUFFER_WRITE+6, AL  
-
-        ;Mês
-        MOV     AL, MES 
-        CALL    HEXA2DECIMAL
-        MOV     AL, DEZENA
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+7, AL
-        MOV     AL, UNIDADE
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+8, AL
-        MOV     AL, '/'
-        MOV     BUFFER_WRITE+9, AL        
-
-        ;Ano
-        MOV     AX, ANO
-        MOV     NUM_NEXA, AX
-        CALL    HEXA2DECIMAL16
-        MOV     AL, DIGITOS+1
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+10, AL
-        MOV     AL, DIGITOS+2
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+11, AL
-        MOV     AL, DIGITOS+3
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+12, AL
-        MOV     AL, DIGITOS+4
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+13, AL
+        LEA     SI, TIME_DATA
+        LEA     DI, BUFFER_WRITE+4
+        XOR     CX, CX
+        MOV     CL, 10
+        CLD
+        REP     MOVSB
 
         ;Adiciona Hora
         CALL    GET_TIME
-
-        ;Hora
-        MOV     AL, HORA 
-        CALL    HEXA2DECIMAL
-        MOV     AL, DEZENA
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+15, AL
-        MOV     AL, UNIDADE
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+16, AL
-        MOV     AL, ':'
-        MOV     BUFFER_WRITE+17, AL
-
-        ;Minuto
-        MOV     AL, MINUTO 
-        CALL    HEXA2DECIMAL
-        MOV     AL, DEZENA
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+18, AL
-        MOV     AL, UNIDADE
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+19, AL
-        MOV     AL, ':'
-        MOV     BUFFER_WRITE+20, AL        
-
-        ;Segundo
-        MOV     AL, SEGUNDO
-        CALL    HEXA2DECIMAL
-        MOV     AL, DEZENA
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+21, AL
-        MOV     AL, UNIDADE
-        ADD     AL, '0'
-        MOV     BUFFER_WRITE+22, AL
+        LEA     SI, TIME_HORA
+        LEA     DI, BUFFER_WRITE+15
+        XOR     CX, CX
+        MOV     CL, 8
+        CLD
+        REP     MOVSB
+ 
 
         ;Posiciona o ponteiro do arquivo no final do arquivo
         MOV     AL, 02H                         ;Posiciona o ponteiro
@@ -332,7 +266,7 @@ CODE_SEG	ENDS
 ;****************************************************************
 
         PUBLIC FILE_NAME, ATTR, HANDLE_IN, BUFFER_WRITE, BUFFER_WRITE_LEN, FILE_ORIGIN
-        PUBLIC FILE_MODE, FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN, NUM_NEXA
+        PUBLIC FILE_MODE, FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN
 
 DATA_SEG       SEGMENT PUBLIC
 
@@ -385,21 +319,8 @@ DATA_SEG       SEGMENT PUBLIC
         FILE_MSG_READ DB CR,LF,'### Conteudo do arquivo:',CR,LF,'$'
 
         ;Variáveis referentes a data e hora
-        NUM_NEXA dw ?
-        EXTERN DIGITOS:BYTE
-
-        EXTERN UNIDADE:BYTE
-        EXTERN DEZENA:BYTE
-
-        EXTERN HORA:BYTE
-        EXTERN MINUTO:BYTE
-        EXTERN SEGUNDO:BYTE
-        EXTERN CENTESIMO:BYTE
-
-        EXTERN DIA_SEMANA:BYTE
-        EXTERN MES:BYTE
-        EXTERN DIA:BYTE
-        EXTERN ANO:WORD
+        EXTERN TIME_HORA:BYTE
+        EXTERN TIME_DATA:BYTE
 
 DATA_SEG       ENDS
 
