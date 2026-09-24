@@ -4,6 +4,8 @@
 ; IMP_HEXA - Converte o byte em DL em hexa;
 ; IMP_DIG_HEXA - Converte os 4 bits baixos em DL em hexa;
 ; IMP_DECIMAL - Imprime um numero de 16 bits sem sinal em notacao decimal
+; HEXA2DECIMAL16 - converte um número em hexadecimal de 16 bits em decimal 
+;                  colocando o valor em 5 posições de memória;
 ; HEXA2DECIMAL - converte um número em hexadecimal menor ou igual a 63h em decimal.
 ;*************************************************************************
 
@@ -119,6 +121,48 @@ IMP_DECIMAL     ENDP
 ;----------------------------------------------------------------
 
 ;****************************************************************
+; HEXA2DECIMAL16 - Essa rotina, converte um número em hexadecimal
+; de 16 bits em decimal colocando o valor em 5 posições de memória
+;
+; Entrada:   AL - valor entre 00h e 63h
+; Saída:     UNIDADE e DEZENA
+;****************************************************************
+
+                PUBLIC  HEXA2DECIMAL16
+
+HEXA2DECIMAL16    PROC    NEAR
+                
+                PUSH    AX
+                PUSH    BX
+                PUSH    DX
+                PUSH    DI
+
+                MOV     AX, NUM_NEXA   
+                MOV     BX, 10
+                LEA     DI, DIGITOS
+                ADD     DI, 4
+
+HEXA2DECIMAL16_LOOP:
+                XOR     DX, DX
+                DIV     BX    
+                MOV     [DI], DL
+                DEC     DI   
+                CMP     AX, 0
+                JNE     HEXA2DECIMAL16_LOOP
+
+                POP     DI
+                POP     DX
+                POP     BX
+                POP     AX
+                RET       
+
+HEXA2DECIMAL16    ENDP
+
+;----------------------------------------------------------------
+; FIM HEXA2DECIMAL16
+;----------------------------------------------------------------
+
+;****************************************************************
 ; HEXA2DECIMAL - Essa rotina, converte um número em hexadecimal
 ; menor ou igual a 63h em decimal.
 ;
@@ -155,12 +199,15 @@ CODE_SEG        ENDS
 ; ÁREA DE DADOS
 ;****************************************************************
 
-                PUBLIC  UNIDADE, DEZENA
+                PUBLIC  UNIDADE, DEZENA, DIGITOS
 
 DATA_SEG        SEGMENT PUBLIC
 
                 UNIDADE DB 0
                 DEZENA DB 0
+
+                EXTERN NUM_NEXA:WORD
+                DIGITOS db 5 DUP(0)
 
 DATA_SEG        ENDS
 
