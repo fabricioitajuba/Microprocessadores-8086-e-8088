@@ -1,6 +1,7 @@
 ;****************************************************************
 ; Essas rotinas manipulam strings
 ;
+; CAR_READ  - Espeça uma tela ser pressionada;
 ; CAR_PRINT - Imprime um caracter na tela;
 ; STR_PRINT - Imprime uma string na tela;
 ; STR_LEN - Calcula o número de bytes de uma string;
@@ -12,6 +13,26 @@ CGROUP          GROUP   CODE_SEG, DATA_SEG
 CODE_SEG        SEGMENT PUBLIC
 
                 INCLUDE CONST.INC
+
+;****************************************************************
+; CAR_READ
+; Esta rotina aguarda uma tecla ser pressionada
+; Entrada: AL - Código ASCII da tela
+;****************************************************************
+
+                PUBLIC  CAR_READ
+
+CAR_READ        PROC    NEAR
+
+                MOV     AH, 07H
+	            INT     21H
+
+                RET
+
+CAR_READ        ENDP                
+;----------------------------------------------------------------
+; FIM CAR_PRINT
+;----------------------------------------------------------------
 
 ;****************************************************************
 ; CAR_PRINT
