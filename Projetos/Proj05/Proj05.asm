@@ -184,7 +184,7 @@ CRUD_CREATE:
         MOV     DX, 0
         INT     21H
         ; DX:AX agora contém o tamanho exato do arquivo em bytes!
-        MOV     NUM_HEXA, AX
+        PUSH    AX
         CALL    HEXA2DECIMAL16
         LEA     DX, DIGITOS
         CALL    STR_PRINT
@@ -193,11 +193,10 @@ CRUD_CREATE:
         LEA     DX, CRUD_MSG_TOTAL_REGISTROS
         CALL    STR_PRINT
 
-        MOV     AX, NUM_HEXA
+        POP     AX
         MOV     BL, 64
         DIV     BL
 
-        MOV     NUM_HEXA, AX
         CALL    HEXA2DECIMAL16
         LEA     DX, DIGITOS
         CALL    STR_PRINT
@@ -352,7 +351,6 @@ DATA_SEG       SEGMENT PUBLIC
         EXTERN TIME_DATA:BYTE
 
         EXTERN DIGITOS:BYTE
-        EXTERN NUM_HEXA:WORD
 
 DATA_SEG       ENDS
 
