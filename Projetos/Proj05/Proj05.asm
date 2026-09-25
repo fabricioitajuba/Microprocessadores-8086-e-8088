@@ -4,7 +4,7 @@
 ; $ NMAKE
 ; $ exe2bin proj05 proj05.com
 ; Autor: Eng. Fabrício Ribeiro
-; Status: Problemas após alterar a rotina de hora e data
+; Status: Concluído!
 ;----------------------------------------------------
 
 BUFFER_READ_SIZE        EQU     512
@@ -147,7 +147,6 @@ CRUD_CREATE:
         CLD
         REP     MOVSB
  
-
         ;Posiciona o ponteiro do arquivo no final do arquivo
         MOV     AL, 02H                         ;Posiciona o ponteiro
         MOV     FILE_ORIGIN, AL                 ;no FINAL do arquivo;
@@ -185,49 +184,23 @@ CRUD_CREATE:
         MOV     DX, 0
         INT     21H
         ; DX:AX agora contém o tamanho exato do arquivo em bytes!
-        MOV     NUM_NEXA, AX
+        MOV     NUM_HEXA, AX
         CALL    HEXA2DECIMAL16
-        MOV     DL, DIGITOS
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, DIGITOS+1
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, DIGITOS+2
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, DIGITOS+3
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, DIGITOS+4
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        
+        LEA     DX, DIGITOS
+        CALL    STR_PRINT
+      
         ;Calcula do tamanho de registros
         LEA     DX, CRUD_MSG_TOTAL_REGISTROS
         CALL    STR_PRINT
 
-        MOV     AX, NUM_NEXA
+        MOV     AX, NUM_HEXA
         MOV     BL, 64
         DIV     BL
 
-        MOV     NUM_NEXA, AX
+        MOV     NUM_HEXA, AX
         CALL    HEXA2DECIMAL16
-        MOV     DL, DIGITOS
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, DIGITOS+1
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, DIGITOS+2
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, DIGITOS+3
-        ADD     DL, '0'
-        CALL    CAR_PRINT
-        MOV     DL, DIGITOS+4
-        ADD     DL, '0'
-        CALL    CAR_PRINT
+        LEA     DX, DIGITOS
+        CALL    STR_PRINT
 
         CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
 
@@ -237,7 +210,6 @@ CRUD_CREATE:
 ;-------------------------------------------------------
 
 INSERE_DADOS:
-
 
         ;Posiciona o ponteiro do arquivo no início do arquivo
         MOV     AL, 00H                         ;Posiciona o ponteiro
@@ -323,7 +295,7 @@ CODE_SEG	ENDS
 ;****************************************************************
 
         PUBLIC FILE_NAME, ATTR, HANDLE_IN, BUFFER_WRITE, BUFFER_WRITE_LEN, FILE_ORIGIN
-        PUBLIC FILE_MODE, FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN, NUM_NEXA
+        PUBLIC FILE_MODE, FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN
 
 DATA_SEG       SEGMENT PUBLIC
 
@@ -345,8 +317,6 @@ DATA_SEG       SEGMENT PUBLIC
         FILE_NBYTES_L DW ?
         FILE_MODE DB ?
 
-        ;TEXTO DB 'Esse eh o texto inserido no arquivo!',CR,LF,'$'
-        ;LEN DW ?
         BUFFER_WRITE DB BUFFER_WRITE_SIZE DUP('$')                ;Buffer de leitura do arquivo
         BUFFER_WRITE_LEN DW BUFFER_WRITE_SIZE                     ;Quantidade de bytes a serem lidos
 
@@ -382,7 +352,7 @@ DATA_SEG       SEGMENT PUBLIC
         EXTERN TIME_DATA:BYTE
 
         EXTERN DIGITOS:BYTE
-        NUM_NEXA DW  0
+        EXTERN NUM_HEXA:WORD
 
 DATA_SEG       ENDS
 

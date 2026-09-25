@@ -4,9 +4,9 @@
 ; IMP_HEXA - Converte o byte em DL em hexa;
 ; IMP_DIG_HEXA - Converte os 4 bits baixos em DL em hexa;
 ; IMP_DECIMAL - Imprime um numero de 16 bits sem sinal em notacao decimal
+; DECIMAL99 - converte um número em hexadecimal menor ou igual a 63h em decimal.
 ; HEXA2DECIMAL16 - converte um número em hexadecimal de 16 bits em decimal 
-;                  colocando o valor em 5 posições de memória;
-; HEXA2DECIMAL - converte um número em hexadecimal menor ou igual a 63h em decimal.
+;                  colocando o valor em uma string com 6 posições de memória;
 ;*************************************************************************
 
 
@@ -121,11 +121,42 @@ IMP_DECIMAL     ENDP
 ;----------------------------------------------------------------
 
 ;****************************************************************
-; HEXA2DECIMAL16 - Essa rotina, converte um número em hexadecimal
-; de 16 bits em decimal colocando o valor em 5 posições de memória
+; DECIMAL99 - Essa rotina, converte um número em hexadecimal
+; menor ou igual a 63h em decimal.
 ;
 ; Entrada:   AL - valor entre 00h e 63h
 ; Saída:     UNIDADE e DEZENA
+;****************************************************************
+
+                PUBLIC  DECIMAL99
+
+DECIMAL99   PROC    NEAR
+                
+            PUSH    AX
+            PUSH    BX
+
+            XOR     AH, AH        
+            MOV     BL, 10
+            DIV     BL
+            MOV     DECIMAL+1, AH
+            MOV     DECIMAL, AL
+
+            POP     BX
+            POP     AX
+            RET       
+
+DECIMAL99   ENDP
+
+;----------------------------------------------------------------
+; FIM DECIMAL99
+;----------------------------------------------------------------
+
+;****************************************************************
+; HEXA2DECIMAL16 - Essa rotina, converte um número em hexadecimal
+; de 16 bits em decimal colocando o valor em 5 posições de memória
+;
+; Entrada:   AX - de 16 bits
+; Saída:     DIGITOS - String
 ;****************************************************************
 
                 PUBLIC  HEXA2DECIMAL16
@@ -134,18 +165,19 @@ HEXA2DECIMAL16    PROC    NEAR
                 
                 PUSH    AX
                 PUSH    BX
+                PUSH    CX
                 PUSH    DX
                 PUSH    DI
 
                 ;Zera as posições de DIGITOS
-                MOV     AL, 0
+                MOV     AL, '0'
                 MOV     DIGITOS, AL
                 MOV     DIGITOS+1, AL
                 MOV     DIGITOS+2, AL
                 MOV     DIGITOS+3, AL
                 MOV     DIGITOS+4, AL
 
-                MOV     AX, NUM_NEXA   
+                MOV     AX, NUM_HEXA   
                 MOV     BX, 10
                 LEA     DI, DIGITOS
                 ADD     DI, 4
@@ -153,13 +185,16 @@ HEXA2DECIMAL16    PROC    NEAR
 HEXA2DECIMAL16_LOOP:
                 XOR     DX, DX
                 DIV     BX    
-                MOV     [DI], DL
+                MOV     CL, DL
+                ADD     CL, 30H
+                MOV     [DI], CL
                 DEC     DI   
                 CMP     AX, 0
                 JNE     HEXA2DECIMAL16_LOOP
 
                 POP     DI
                 POP     DX
+                POP     CX
                 POP     BX
                 POP     AX
                 RET       
@@ -170,52 +205,20 @@ HEXA2DECIMAL16    ENDP
 ; FIM HEXA2DECIMAL16
 ;----------------------------------------------------------------
 
-;****************************************************************
-; HEXA2DECIMAL - Essa rotina, converte um número em hexadecimal
-; menor ou igual a 63h em decimal.
-;
-; Entrada:   AL - valor entre 00h e 63h
-; Saída:     UNIDADE e DEZENA
-;****************************************************************
-
-                PUBLIC  HEXA2DECIMAL
-
-HEXA2DECIMAL    PROC    NEAR
-                
-                PUSH    AX
-                PUSH    BX
-
-                XOR     AH, AH        
-                MOV     BL, 10
-                DIV     BL
-                MOV     UNIDADE, AH
-                MOV     DEZENA, AL
-
-                POP     BX
-                POP     AX
-                RET       
-
-HEXA2DECIMAL    ENDP
-
-;----------------------------------------------------------------
-; FIM IMP_DECIMAL
-;----------------------------------------------------------------
-
 CODE_SEG        ENDS
 
 ;****************************************************************
 ; ÁREA DE DADOS
 ;****************************************************************
 
-                PUBLIC  UNIDADE, DEZENA, DIGITOS
+                PUBLIC  DECIMAL, NUM_HEXA, DIGITOS
 
 DATA_SEG        SEGMENT PUBLIC
 
-                UNIDADE DB 0
-                DEZENA DB 0
+                DECIMAL DB 3 DUP('$')
 
-                EXTERN NUM_NEXA:WORD
-                DIGITOS db 5 DUP(0)
+                NUM_HEXA DW 0
+                DIGITOS DB 6 DUP('$')
 
 DATA_SEG        ENDS
 
