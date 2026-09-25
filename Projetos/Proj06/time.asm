@@ -12,7 +12,6 @@ CODE_SEG        SEGMENT PUBLIC
 
                 INCLUDE CONST.INC
 
-                EXTRN   HEXA2DECIMAL:NEAR
                 EXTRN   HEXA2DECIMAL16:NEAR
 
 ;****************************************************************
@@ -40,37 +39,36 @@ GET_TIME       PROC    NEAR
                 MOV     SEGUNDO, DH
                 MOV     CENTESIMO, DL
 
+                XOR     AX, AX
+
                 MOV     AL, HORA 
-                CALL    HEXA2DECIMAL
-                MOV     DL, DEZENA
-                ADD     DL, '0'
+                MOV     NUM_HEXA, AX
+                CALL    HEXA2DECIMAL16
+                MOV     DL, DIGITOS+3
                 MOV     TIME_HORA, DL
-                MOV     DL, UNIDADE
-                ADD     DL, '0'
+                MOV     DL, DIGITOS+4
                 MOV     TIME_HORA+1, DL
 
                 MOV     DL, ':'
                 MOV     TIME_HORA+2, DL
         
                 MOV     AL, MINUTO 
-                CALL    HEXA2DECIMAL
-                MOV     DL, DEZENA
-                ADD     DL, '0'
+                MOV     NUM_HEXA, AX
+                CALL    HEXA2DECIMAL16
+                MOV     DL, DIGITOS+3
                 MOV     TIME_HORA+3, DL
-                MOV     DL, UNIDADE
-                ADD     DL, '0'
+                MOV     DL, DIGITOS+4
                 MOV     TIME_HORA+4, DL
 
                 MOV     DL, ':'
                 MOV     TIME_HORA+5, DL
 
                 MOV     AL, SEGUNDO 
-                CALL    HEXA2DECIMAL
-                MOV     DL, DEZENA
-                ADD     DL, '0'
+                MOV     NUM_HEXA, AX
+                CALL    HEXA2DECIMAL16
+                MOV     DL, DIGITOS+3
                 MOV     TIME_HORA+6, DL
-                MOV     DL, UNIDADE
-                ADD     DL, '0'
+                MOV     DL, DIGITOS+4
                 MOV     TIME_HORA+7, DL                
 
                 POP     DX
@@ -109,44 +107,40 @@ GET_DATA       PROC    NEAR
                 MOV     MES, DH
                 MOV     DIA, DL 
 
+                XOR     AX, AX
+
                 MOV     AL, DIA 
-                CALL    HEXA2DECIMAL
-                MOV     DL, DEZENA
-                ADD     DL, '0'
+                MOV     NUM_HEXA, AX
+                CALL    HEXA2DECIMAL16
+                MOV     DL, DIGITOS+3
                 MOV     TIME_DATA, DL
-                MOV     DL, UNIDADE
-                ADD     DL, '0'
+                MOV     DL, DIGITOS+4
                 MOV     TIME_DATA+1, DL
 
                 MOV     DL, '/'
                 MOV     TIME_DATA+2, DL
 
                 MOV     AL, MES 
-                CALL    HEXA2DECIMAL
-                MOV     DL, DEZENA
-                ADD     DL, '0'
+                MOV     NUM_HEXA, AX
+                CALL    HEXA2DECIMAL16
+                MOV     DL, DIGITOS+3
                 MOV     TIME_DATA+3, DL
-                MOV     DL, UNIDADE
-                ADD     DL, '0'
+                MOV     DL, DIGITOS+4
                 MOV     TIME_DATA+4, DL
 
                 MOV     DL, '/'
                 MOV     TIME_DATA+5, DL
 
                 MOV     AX, ANO
-                MOV     NUM_NEXA, AX
+                MOV     NUM_HEXA, AX
                 CALL    HEXA2DECIMAL16
                 MOV     DL, DIGITOS+1
-                ADD     DL, '0'
                 MOV     TIME_DATA+6, DL
                 MOV     DL, DIGITOS+2
-                ADD     DL, '0'
                 MOV     TIME_DATA+7, DL                
                 MOV     DL, DIGITOS+3
-                ADD     DL, '0'
                 MOV     TIME_DATA+8, DL
                 MOV     DL, DIGITOS+4
-                ADD     DL, '0'
                 MOV     TIME_DATA+9, DL
 
                 POP     DX
@@ -168,7 +162,7 @@ CODE_SEG        ENDS
 
                 ;PUBLIC HORA, MINUTO, SEGUNDO, CENTESIMO
                 ;PUBLIC DIA_SEMANA, ANO, MES, DIA
-                PUBLIC TIME_HORA, TIME_DATA, NUM_NEXA
+                PUBLIC TIME_HORA, TIME_DATA
 
 DATA_SEG        SEGMENT PUBLIC
 
@@ -185,11 +179,7 @@ DATA_SEG        SEGMENT PUBLIC
                 MES         DB  ?
                 DIA         DB  ?  
 
-                NUM_NEXA    DW  0
-
-                EXTERN UNIDADE:BYTE
-                EXTERN DEZENA:BYTE
-
+                EXTERN NUM_HEXA:WORD
                 EXTERN DIGITOS:BYTE
 
 DATA_SEG        ENDS
