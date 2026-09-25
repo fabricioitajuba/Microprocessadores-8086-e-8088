@@ -42,7 +42,6 @@ GET_TIME       PROC    NEAR
                 XOR     AX, AX
 
                 MOV     AL, HORA 
-                MOV     NUM_HEXA, AX
                 CALL    HEXA2DECIMAL16
                 MOV     DL, DIGITOS+3
                 MOV     TIME_HORA, DL
@@ -53,7 +52,6 @@ GET_TIME       PROC    NEAR
                 MOV     TIME_HORA+2, DL
         
                 MOV     AL, MINUTO 
-                MOV     NUM_HEXA, AX
                 CALL    HEXA2DECIMAL16
                 MOV     DL, DIGITOS+3
                 MOV     TIME_HORA+3, DL
@@ -64,7 +62,6 @@ GET_TIME       PROC    NEAR
                 MOV     TIME_HORA+5, DL
 
                 MOV     AL, SEGUNDO 
-                MOV     NUM_HEXA, AX
                 CALL    HEXA2DECIMAL16
                 MOV     DL, DIGITOS+3
                 MOV     TIME_HORA+6, DL
@@ -110,7 +107,6 @@ GET_DATA       PROC    NEAR
                 XOR     AX, AX
 
                 MOV     AL, DIA 
-                MOV     NUM_HEXA, AX
                 CALL    HEXA2DECIMAL16
                 MOV     DL, DIGITOS+3
                 MOV     TIME_DATA, DL
@@ -121,7 +117,6 @@ GET_DATA       PROC    NEAR
                 MOV     TIME_DATA+2, DL
 
                 MOV     AL, MES 
-                MOV     NUM_HEXA, AX
                 CALL    HEXA2DECIMAL16
                 MOV     DL, DIGITOS+3
                 MOV     TIME_DATA+3, DL
@@ -132,7 +127,6 @@ GET_DATA       PROC    NEAR
                 MOV     TIME_DATA+5, DL
 
                 MOV     AX, ANO
-                MOV     NUM_HEXA, AX
                 CALL    HEXA2DECIMAL16
                 MOV     DL, DIGITOS+1
                 MOV     TIME_DATA+6, DL
@@ -179,7 +173,6 @@ DATA_SEG        SEGMENT PUBLIC
                 MES         DB  ?
                 DIA         DB  ?  
 
-                EXTERN NUM_HEXA:WORD
                 EXTERN DIGITOS:BYTE
 
 DATA_SEG        ENDS

@@ -125,7 +125,7 @@ IMP_DECIMAL     ENDP
 ; menor ou igual a 63h em decimal.
 ;
 ; Entrada:   AL - valor entre 00h e 63h
-; Saída:     UNIDADE e DEZENA
+; Saída:     DECIMAL - String
 ;****************************************************************
 
                 PUBLIC  DECIMAL99
@@ -138,7 +138,9 @@ DECIMAL99   PROC    NEAR
             XOR     AH, AH        
             MOV     BL, 10
             DIV     BL
+            ADD     AH, '0'
             MOV     DECIMAL+1, AH
+            ADD     AL, '0'
             MOV     DECIMAL, AL
 
             POP     BX
@@ -170,14 +172,13 @@ HEXA2DECIMAL16    PROC    NEAR
                 PUSH    DI
 
                 ;Zera as posições de DIGITOS
-                MOV     AL, '0'
-                MOV     DIGITOS, AL
-                MOV     DIGITOS+1, AL
-                MOV     DIGITOS+2, AL
-                MOV     DIGITOS+3, AL
-                MOV     DIGITOS+4, AL
+                MOV     DL, '0'
+                MOV     DIGITOS, DL
+                MOV     DIGITOS+1, DL
+                MOV     DIGITOS+2, DL
+                MOV     DIGITOS+3, DL
+                MOV     DIGITOS+4, DL
 
-                MOV     AX, NUM_HEXA   
                 MOV     BX, 10
                 LEA     DI, DIGITOS
                 ADD     DI, 4
@@ -211,13 +212,11 @@ CODE_SEG        ENDS
 ; ÁREA DE DADOS
 ;****************************************************************
 
-                PUBLIC  DECIMAL, NUM_HEXA, DIGITOS
+                PUBLIC  DECIMAL, DIGITOS
 
 DATA_SEG        SEGMENT PUBLIC
 
                 DECIMAL DB 3 DUP('$')
-
-                NUM_HEXA DW 0
                 DIGITOS DB 6 DUP('$')
 
 DATA_SEG        ENDS
