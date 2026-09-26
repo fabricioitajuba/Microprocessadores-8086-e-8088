@@ -9,9 +9,9 @@
    14 - "-"
 15-22 - Hora    ( 8 BYTES)
    23 - "Espaço"
-24-58 - Nome    (35 BYTES)
+24-57 - Nome    (34 BYTES)
+   58 - "Espaço"
 59-61 - Idade
    62 - CR
    63 - LF
    
-

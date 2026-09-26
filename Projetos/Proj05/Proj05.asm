@@ -4,10 +4,15 @@
 ; $ NMAKE
 ; $ exe2bin proj05 proj05.com
 ; Autor: Eng. Fabrício Ribeiro
-; Status: Create concluído
+; Etapas: 
+; Create - Concluído
+; Read   - Não implementado
+; Update - Não implementado
+; Delete - Não implementado
+; Lista  - Falta acrescentar break a cada tela cheia
 ;----------------------------------------------------
 
-BUFFER_READ_SIZE        EQU     512
+BUFFER_READ_SIZE        EQU     1024
 BUFFER_WRITE_SIZE       EQU     64
 
 CGROUP  GROUP   CODE_SEG, DATA_SEG
@@ -93,6 +98,8 @@ INICIO_PROGRAMA:
         CALL    CAR_PRINT                       ;Mostra a tela pressionada
         CMP     AL,'C'
         JE      CRUD_CREATE
+        CMP     AL,'L'
+        JE      CRUD_LIST_ALL
         CMP     AL,'Q'
         JE      SAI_DOS
               
@@ -100,7 +107,7 @@ INICIO_PROGRAMA:
 
 
 ;*******************************************************
-; CREATE
+; CREATE - Cria um registro
 ;*******************************************************
 CRUD_CREATE:
         LEA     DX, CRUD_MSG_CREATE
@@ -227,7 +234,16 @@ CRUD_CREATE:
 ; FIM CREATE
 ;-------------------------------------------------------
 
-INSERE_DADOS:
+;*******************************************************
+; LIST_ALL - Lista na tela dos os registros inseridos
+;*******************************************************
+CRUD_LIST_ALL:
+
+        ;Limpa o buffer de leitura
+        CALL    BUFFER_READ_CLEAR
+
+        LEA     DX, CRUD_MSG_LIST
+        CALL    STR_PRINT
 
         ;Posiciona o ponteiro do arquivo no início do arquivo
         MOV     AL, 00H                         ;Posiciona o ponteiro
@@ -240,7 +256,7 @@ INSERE_DADOS:
         CALL    FILE_POINTER                    ;Tenta posicionar o ponteiro.
         MOV     AL, FILE_STATUS                 ;Verifica 
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        ;JE      FECHA_ARQUIVO                   ;Se FALSE, fecha o arquivo e sai para o DOS
+        JE      SAI_DOS                         ;Se FALSE, fecha o arquivo e sai para o DOS
 
         ;Faz a leitura do arquivo:
         MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
@@ -250,14 +266,18 @@ INSERE_DADOS:
         CALL    FILE_READ                       ;Tenta fazer a leitura do arquivo.
         MOV     AL, FILE_STATUS                 ;Verifica
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        ;JE      FECHA_ARQUIVO                   ;Se FALSE, sai para o DOS
-
-        LEA     DX, FILE_MSG_READ               ;Se TRUE
-        CALL    STR_PRINT                       ;imprime a mensagem
+        JE      SAI_DOS                         ;Se FALSE, sai para o DOS
 
         ;Mostra o conteúdo do arquivo
         LEA     DX, BUFFER_READ                 ;Conteúdo do
         CALL    STR_PRINT                       ;arquivo.
+
+        CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
+
+        JMP     INICIO_PROGRAMA
+;-------------------------------------------------------
+; FIM LIST_ALL
+;-------------------------------------------------------
 
 SAI_DOS:
         ;Fecha o arquivo
@@ -275,15 +295,12 @@ SAI_DOS:
 MAIN 	ENDP
 
 ;****************************************************************
-; REGISTRO_CLEAR
-; Esta rotina limpa o registro
+; REGISTRO_CLEAR - Esta rotina limpa o buffer de registro
 ;****************************************************************
 
 REGISTRO_CLEAR     PROC    NEAR
 
-        ;Inicializando o buffer de registro
         MOV     SI, 0
-
         XOR     CX, CX
         MOV     CX, 62
 
@@ -306,6 +323,26 @@ REGISTRO_CLEAR_LOOP:
 
 REGISTRO_CLEAR     ENDP
 
+;****************************************************************
+; BUFFER_READ_CLEAR - Limpa o buffer de leitura
+;****************************************************************
+
+BUFFER_READ_CLEAR     PROC    NEAR
+
+        MOV     SI, 0
+        MOV     AL, '$'
+        XOR     CX, CX
+        MOV     CX, BUFFER_READ_SIZE
+
+BUFFER_READ_CLEAR_LOOP:        
+        MOV     BUFFER_READ[SI], AL
+        INC     SI
+        LOOP    BUFFER_READ_CLEAR_LOOP
+
+        RET
+
+BUFFER_READ_CLEAR     ENDP
+
 CODE_SEG	ENDS
 
 ;****************************************************************
@@ -321,9 +358,9 @@ DATA_SEG       SEGMENT PUBLIC
         NUM_BYTES       DW ?
 
         ;Armazena o nome
-        NOME_LEN        DB 36  		;Tamanho do buffer 36 char+return
+        NOME_LEN        DB 35  		;Tamanho do buffer 35 char+return
         NOME_LEN_ACT    DB ?   		;Tamanho atual
-        NOME            DB 36 DUP(' ') 	;Buffer, 27 posições inicializadas com " "
+        NOME            DB 35 DUP(' ') 	;Buffer, 35 posições inicializadas com " "
 
         ;Armazena a idade
         IDADE_LEN       DB 4  		;Tamanho do buffer 4 char+return
@@ -356,6 +393,7 @@ DATA_SEG       SEGMENT PUBLIC
                       DB 'R - Ler um registro;',CR,LF
                       DB 'U - Atualizar um registro;',CR,LF
                       DB 'D - Deletar um registro;',CR,LF
+                      DB 'L - Listar todos os registros;',CR,LF
                       DB 'Q - Sair;',CR,LF
                       DB '>> ','$'
 
@@ -366,7 +404,9 @@ DATA_SEG       SEGMENT PUBLIC
         CRUD_MSG_TOTAL_BYTES DB CR,LF,CR,LF,'- Total de BYTES: ','$'
         CRUD_MSG_TOTAL_REGISTROS DB CR,LF,'- Total de REGISTROS: ','$'
 
-        FILE_MSG_READ DB CR,LF,'### Conteudo do arquivo:',CR,LF,'$'
+        CRUD_MSG_LIST DB CR,LF,'-------------------------------------------------------------------',CR,LF
+                      DB ' ID|   DATA   |  HORA  |                NOME              |IDADE   ',CR,LF
+                      DB '-------------------------------------------------------------------',CR,LF,'$'
 
         ;Variáveis referentes a data e hora
         EXTERN TIME_HORA:BYTE
