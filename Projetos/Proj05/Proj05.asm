@@ -4,7 +4,7 @@
 ; $ NMAKE
 ; $ exe2bin proj05 proj05.com
 ; Autor: Eng. Fabrício Ribeiro
-; Status: Concluído!
+; Status: Create concluído
 ;----------------------------------------------------
 
 BUFFER_READ_SIZE        EQU     512
@@ -48,7 +48,7 @@ MAIN	PROC NEAR
         MOV     FILE_MODE, AL
         CALL    FILE_APPEND
         MOV     AL, FILE_STATUS
-        CMP     AL, TRUE
+        CMP     AL, TRUE      
         JE      INICIO_PROGRAMA
 
         ;Cria o arquivo
@@ -57,9 +57,24 @@ MAIN	PROC NEAR
         CALL    FILE_CREATE
         MOV     AL, FILE_STATUS
         CMP     AL, FALSE
+        MOV     AX, 0           ;Zera o contador
+        MOV     ID, AX          ;de registros.
         JE      SAI_DOS      
 
 INICIO_PROGRAMA:
+
+        ;Calcula do tamanho de bytes do arquivo lido
+        MOV     AH, 42H
+        MOV     AL, 2
+        MOV     BX, HANDLE_OUT
+        MOV     CX, 0
+        MOV     DX, 0
+        INT     21H
+        ; DX:AX agora contém o tamanho exato do arquivo em bytes!
+        MOV     NUM_BYTES, AX   ;Guarda auantidade de bytes do arquivo.
+        MOV     BL, 64          ;Calcula a
+        DIV     BL              ;Quantidade de registros.
+        MOV     ID, AX          ;Guarda a quantidade de registros.
 
         CALL    CLR_SCREEN                      ;Limpa a tela
 
@@ -110,8 +125,18 @@ CRUD_CREATE:
         ;Limpa o registro
         CALL    REGISTRO_CLEAR   
 
-        MOV     AL,'-'
-        MOV     BUFFER_WRITE+14, AL
+        ;Incrementa o ID
+        INC     WORD PTR [ID]
+        MOV     AX, ID
+        CALL    HEXA2DECIMAL16
+
+        ;Copia o ID para o registro
+        LEA     SI, DIGITOS+2
+        LEA     DI, BUFFER_WRITE
+        XOR     CX, CX
+        MOV     CL, 3
+        CLD
+        REP     MOVSB
 
         ;Copia o nome para o registro
         LEA     SI, NOME
@@ -137,6 +162,10 @@ CRUD_CREATE:
         MOV     CL, 10
         CLD
         REP     MOVSB
+
+        ;Separação entre data e hora
+        MOV     AL,'-'
+        MOV     BUFFER_WRITE+14, AL
 
         ;Adiciona Hora
         CALL    GET_TIME
@@ -173,30 +202,20 @@ CRUD_CREATE:
         LEA     DX, CRUD_MSG_CREATE_SUCESSO
         CALL    STR_PRINT
 
+        ADD     WORD PTR [NUM_BYTES], 64        ;Calcula o número de bytes do arquivo.
+
+        ;Mostra o novo número de bytes arquivo
         LEA     DX, CRUD_MSG_TOTAL_BYTES
         CALL    STR_PRINT
-
-        ;Calcula do tamanho de bytes
-        MOV     AH, 42H
-        MOV     AL, 2
-        MOV     BX, HANDLE_OUT
-        MOV     CX, 0
-        MOV     DX, 0
-        INT     21H
-        ; DX:AX agora contém o tamanho exato do arquivo em bytes!
-        PUSH    AX
+        MOV     AX, NUM_BYTES
         CALL    HEXA2DECIMAL16
         LEA     DX, DIGITOS
         CALL    STR_PRINT
       
-        ;Calcula do tamanho de registros
+        ;Mostra o tamanho de registros
         LEA     DX, CRUD_MSG_TOTAL_REGISTROS
         CALL    STR_PRINT
-
-        POP     AX
-        MOV     BL, 64
-        DIV     BL
-
+        MOV     AX, ID
         CALL    HEXA2DECIMAL16
         LEA     DX, DIGITOS
         CALL    STR_PRINT
@@ -298,23 +317,26 @@ CODE_SEG	ENDS
 
 DATA_SEG       SEGMENT PUBLIC
 
+        ID              DW ?
+        NUM_BYTES       DW ?
+
         ;Armazena o nome
-        NOME_LEN        db 36  		;Tamanho do buffer 36 char+return
-        NOME_LEN_ACT    db ?   		;Tamanho atual
-        NOME            db 36 DUP(' ') 	;Buffer, 27 posições inicializadas com " "
+        NOME_LEN        DB 36  		;Tamanho do buffer 36 char+return
+        NOME_LEN_ACT    DB ?   		;Tamanho atual
+        NOME            DB 36 DUP(' ') 	;Buffer, 27 posições inicializadas com " "
 
         ;Armazena a idade
-        IDADE_LEN        db 4  		;Tamanho do buffer 4 char+return
-        IDADE_LEN_ACT    db ?   	;Tamanho atual
-        IDADE            db 4 DUP(' ') 	;Buffer, 4 posições inicializadas com " "      
+        IDADE_LEN       DB 4  		;Tamanho do buffer 4 char+return
+        IDADE_LEN_ACT   DB ?   	;Tamanho atual
+        IDADE           DB 4 DUP(' ') 	;Buffer, 4 posições inicializadas com " "      
 
-        FILE_NAME DB 'registro.txt',0
-        ATTR DW 0
-        HANDLE_IN DW ?
-        FILE_ORIGIN DB ?
-        FILE_NBYTES_H DW ?
-        FILE_NBYTES_L DW ?
-        FILE_MODE DB ?
+        FILE_NAME       DB 'registro.txt',0
+        ATTR            DW 0
+        HANDLE_IN       DW ?
+        FILE_ORIGIN     DB ?
+        FILE_NBYTES_H   DW ?
+        FILE_NBYTES_L   DW ?
+        FILE_MODE       DB ?
 
         BUFFER_WRITE DB BUFFER_WRITE_SIZE DUP('$')                ;Buffer de leitura do arquivo
         BUFFER_WRITE_LEN DW BUFFER_WRITE_SIZE                     ;Quantidade de bytes a serem lidos
@@ -328,7 +350,7 @@ DATA_SEG       SEGMENT PUBLIC
 
         ;Mensagens
         CRUD_MSG_INI1 DB CR,LF,'---------------------------------',CR,LF,'$'
-        CRUD_MSG_INI2 DB '### CRUD versao 1.0, 21/09/20206','$'
+        CRUD_MSG_INI2 DB '### CRUD versao 1.0, 21/09/2026','$'
         CRUD_MSG_INI3 DB '- O que Voce deseja?',CR,LF,CR,LF
                       DB 'C - Criar um registro;',CR,LF
                       DB 'R - Ler um registro;',CR,LF
