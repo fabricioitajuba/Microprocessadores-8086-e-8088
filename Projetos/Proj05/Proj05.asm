@@ -244,9 +244,6 @@ CRUD_LIST_ALL:
         ;Limpa o buffer de leitura
         CALL    BUFFER_READ_CLEAR
 
-        LEA     DX, CRUD_MSG_LIST
-        CALL    STR_PRINT
-
         ;Posiciona o ponteiro do arquivo no início do arquivo
         MOV     AL, 00H                         ;Posiciona o ponteiro
         MOV     FILE_ORIGIN, AL                 ;no INÍCIO do arquivo;
@@ -261,6 +258,11 @@ CRUD_LIST_ALL:
         JE      SAI_DOS                         ;Se FALSE, fecha o arquivo e sai para o DOS
 
         XOR     CX, CX
+        CALL    CLR_SCREEN      ;Limpa a tela
+
+CRUD_LIST_ALL_LOOP1:        
+        LEA     DX, CRUD_MSG_LIST
+        CALL    STR_PRINT
 
 CRUD_LIST_ALL_LOOP:
         ;Faz a leitura do arquivo em blocos definidos por BUFFER_READ_SIZE:
@@ -285,8 +287,11 @@ CRUD_LIST_ALL_LOOP:
         INC     CX
         CMP     CX, 5
         JNE     MOSTRA
-        XOR     CX, CX
+
+        XOR     CX, CX        
         CALL    CAR_READ
+        CALL    CLR_SCREEN      ;Limpa a tela
+        JMP     CRUD_LIST_ALL_LOOP1
 
 MOSTRA:
         JMP     CRUD_LIST_ALL_LOOP
@@ -444,7 +449,7 @@ DATA_SEG       SEGMENT PUBLIC
         CRUD_MSG_CREATE_SUCESSO DB CR,LF,'# Registro criado com sucesso!',CR,LF,'$'
         CRUD_MSG_TOTAL_BYTES DB CR,LF,CR,LF,'- Total de BYTES: ','$'
         CRUD_MSG_TOTAL_REGISTROS DB CR,LF,'- Total de REGISTROS: ','$'
-        CRUD_MSG_TECLA DB CR,LF,'# Pressione qualquer tecla para continuar... ','$'
+        CRUD_MSG_TECLA DB CR,LF,CR,LF,'# Pressione qualquer tecla para continuar... ','$'
 
         CRUD_MSG_LIST DB CR,LF,'-------------------------------------------------------------------',CR,LF
                       DB 'ID |   DATA   |  HORA  |              NOME                |IDADE   ',CR,LF

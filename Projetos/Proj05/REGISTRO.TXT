@@ -11,3 +11,6 @@
 011 27/09/2026 20:15:24 Telma Martino Anizio               24 
 012 27/09/2026 20:15:54 Que Bobeira da Silva               56 
 013 27/09/2026 20:16:14 Genival Lacerda                    78 
+014 27/09/2026 20:55:51 Dorgival Energumeno da Silva       70 
+015 27/09/2026 20:56:19 Jaqueline Drinks Bar               24 
+016 27/09/2026 20:56:58 Eu Tenho Um Sonho de Ficar Rico    100
