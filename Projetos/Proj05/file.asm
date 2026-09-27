@@ -306,7 +306,8 @@ CODE_SEG        ENDS
 ;****************************************************************
 ; ÁREA DE DADOS
 ;****************************************************************
-                PUBLIC  FILE_STATUS, HANDLE_OUT
+                PUBLIC  FILE_STATUS, HANDLE_OUT, HANDLE_IN, ATTR, FILE_NBYTES_H
+                PUBLIC  FILE_NBYTES_L, FILE_ORIGIN, FILE_MODE
 
 DATA_SEG        SEGMENT PUBLIC
 
@@ -314,13 +315,16 @@ DATA_SEG        SEGMENT PUBLIC
                 FILE_STATUS DB ?
 
                 ;Recebe a variável externa
-                EXTERN ATTR:WORD
                 EXTERN FILE_NAME:BYTE
-                EXTERN HANDLE_IN:WORD
-                EXTERN FILE_ORIGIN:BYTE
-                EXTERN FILE_NBYTES_H:WORD
-                EXTERN FILE_NBYTES_L:WORD
-                EXTERN FILE_MODE:BYTE
+
+                ATTR DW 0
+
+                HANDLE_IN DW ?
+                FILE_ORIGIN DB ?
+
+                FILE_MODE DB ?
+                FILE_NBYTES_H DW ?
+                FILE_NBYTES_L DW ?
                 
                 EXTERN BUFFER_WRITE:BYTE
                 EXTERN BUFFER_WRITE_LEN:WORD

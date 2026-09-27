@@ -349,8 +349,7 @@ CODE_SEG	ENDS
 ; ÁREA DE DADOS
 ;****************************************************************
 
-        PUBLIC FILE_NAME, ATTR, HANDLE_IN, BUFFER_WRITE, BUFFER_WRITE_LEN, FILE_ORIGIN
-        PUBLIC FILE_MODE, FILE_NBYTES_H, FILE_NBYTES_L, BUFFER_READ, BUFFER_READ_LEN
+        PUBLIC FILE_NAME, BUFFER_WRITE, BUFFER_WRITE_LEN, BUFFER_READ, BUFFER_READ_LEN
 
 DATA_SEG       SEGMENT PUBLIC
 
@@ -368,12 +367,11 @@ DATA_SEG       SEGMENT PUBLIC
         IDADE           DB 4 DUP(' ') 	;Buffer, 4 posições inicializadas com " "      
 
         FILE_NAME       DB 'registro.txt',0
-        ATTR            DW 0
-        HANDLE_IN       DW ?
-        FILE_ORIGIN     DB ?
-        FILE_NBYTES_H   DW ?
-        FILE_NBYTES_L   DW ?
-        FILE_MODE       DB ?
+        EXTERN ATTR:WORD
+        EXTERN HANDLE_IN:WORD
+        EXTERN FILE_NBYTES_H:WORD
+        EXTERN FILE_NBYTES_L:WORD
+        EXTERN FILE_MODE:BYTE
 
         BUFFER_WRITE DB BUFFER_WRITE_SIZE DUP('$')                ;Buffer de leitura do arquivo
         BUFFER_WRITE_LEN DW BUFFER_WRITE_SIZE                     ;Quantidade de bytes a serem lidos
@@ -381,7 +379,8 @@ DATA_SEG       SEGMENT PUBLIC
         BUFFER_READ DB BUFFER_READ_SIZE DUP('$')                ;Buffer de leitura do arquivo
         BUFFER_READ_LEN DW BUFFER_READ_SIZE                     ;Quantidade de bytes a serem lidos
 
-        EXTERN FILE_STATUS:BYTE                                 ;Recebe a variável externa        
+        EXTERN FILE_STATUS:BYTE                                 ;Recebe a variável externa 
+        EXTERN FILE_ORIGIN:BYTE                                 ;Recebe a variável externa        
         EXTERN HANDLE_OUT:WORD                                  ;Recebe a variável externa
         EXTERN STR_LENGHT:WORD                                  ;tamanho do texto
 
@@ -405,7 +404,7 @@ DATA_SEG       SEGMENT PUBLIC
         CRUD_MSG_TOTAL_REGISTROS DB CR,LF,'- Total de REGISTROS: ','$'
 
         CRUD_MSG_LIST DB CR,LF,'-------------------------------------------------------------------',CR,LF
-                      DB ' ID|   DATA   |  HORA  |                NOME              |IDADE   ',CR,LF
+                      DB 'ID |   DATA   |  HORA  |              NOME                |IDADE   ',CR,LF
                       DB '-------------------------------------------------------------------',CR,LF,'$'
 
         ;Variáveis referentes a data e hora
