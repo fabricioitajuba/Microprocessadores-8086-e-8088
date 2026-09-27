@@ -69,19 +69,25 @@ MAIN	PROC NEAR
 INICIO_PROGRAMA:
 
         ;Calcula do tamanho de bytes do arquivo lido
-        MOV     AH, 42H
-        MOV     AL, 2
-        MOV     BX, HANDLE_OUT
-        MOV     CX, 0
-        MOV     DX, 0
-        INT     21H
-        ; DX:AX agora contém o tamanho exato do arquivo em bytes!
+        MOV     AL, 02H
+        MOV     FILE_ORIGIN, AL
+        MOV     AX, HANDLE_OUT
+        MOV     HANDLE_IN, AX
+        MOV     AX, 0000h
+        MOV     FILE_NBYTES_H, AX
+        MOV     FILE_NBYTES_L, AX
+        CALL    FILE_POINTER
+        MOV     AL, FILE_STATUS
+        CMP     AL, FALSE
+        JE      SAI_DOS
+
+        MOV     AX, FILE_NUM_BYTES_L
         MOV     NUM_BYTES, AX   ;Guarda auantidade de bytes do arquivo.
         MOV     BL, 64          ;Calcula a
         DIV     BL              ;Quantidade de registros.
         MOV     ID, AX          ;Guarda a quantidade de registros.
 
-        CALL    CLR_SCREEN                      ;Limpa a tela
+        CALL    CLR_SCREEN      ;Limpa a tela
 
         ;MensageNS inicias
         LEA     DX, CRUD_MSG_INI1
@@ -93,9 +99,9 @@ INICIO_PROGRAMA:
         LEA     DX, CRUD_MSG_INI3
         CALL    STR_PRINT                        
 
-        CALL    CAR_READ                        ;Faz a leitura de uma tecla
+        CALL    CAR_READ         ;Faz a leitura de uma tecla
         MOV     DL, AL
-        CALL    CAR_PRINT                       ;Mostra a tela pressionada
+        CALL    CAR_PRINT        ;Mostra a tela pressionada
         CMP     AL,'C'
         JE      CRUD_CREATE
         CMP     AL,'L'
@@ -116,14 +122,14 @@ CRUD_CREATE:
         LEA     DX, CRUD_MSG_CREATE_NOME
         CALL    STR_PRINT
         
-	LEA     DX, NOME_LEN                    ;Lê NOME
+	LEA     DX, NOME_LEN    ;Lê NOME
 	MOV     AH, 0AH
 	INT     21H
 
         LEA     DX, CRUD_MSG_CREATE_IDADE
         CALL    STR_PRINT
 
-	LEA     DX, IDADE_LEN                   ;Lê IDADE
+	LEA     DX, IDADE_LEN   ;Lê IDADE
 	MOV     AH, 0AH
 	INT     21H
 
@@ -355,6 +361,7 @@ DATA_SEG       SEGMENT PUBLIC
 
         ID              DW ?
         NUM_BYTES       DW ?
+        EXTERN FILE_NUM_BYTES_L:WORD
 
         ;Armazena o nome
         NOME_LEN        DB 35  		;Tamanho do buffer 35 char+return

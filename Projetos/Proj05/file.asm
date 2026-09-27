@@ -197,6 +197,11 @@ FILE_POINTER    PROC    NEAR
                 INT     21H
 
                 JC      FILE_POINTER_ERROR
+                
+                ;DX:AX agora contém o tamanho exato do arquivo em bytes!
+                MOV     FILE_NUM_BYTES_H, DX
+                MOV     FILE_NUM_BYTES_L, AX
+
                 MOV     AL, TRUE
                 MOV     FILE_STATUS, AL
                 JMP     FILE_POINTER_END
@@ -307,7 +312,7 @@ CODE_SEG        ENDS
 ; ÁREA DE DADOS
 ;****************************************************************
                 PUBLIC  FILE_STATUS, HANDLE_OUT, HANDLE_IN, ATTR, FILE_NBYTES_H
-                PUBLIC  FILE_NBYTES_L, FILE_ORIGIN, FILE_MODE
+                PUBLIC  FILE_NBYTES_L, FILE_ORIGIN, FILE_MODE, FILE_NUM_BYTES_H, FILE_NUM_BYTES_L
 
 DATA_SEG        SEGMENT PUBLIC
 
@@ -326,6 +331,9 @@ DATA_SEG        SEGMENT PUBLIC
                 FILE_NBYTES_H DW ?
                 FILE_NBYTES_L DW ?
                 
+                FILE_NUM_BYTES_H DW ?
+                FILE_NUM_BYTES_L DW ?
+
                 EXTERN BUFFER_WRITE:BYTE
                 EXTERN BUFFER_WRITE_LEN:WORD
                 EXTERN BUFFER_READ:BYTE
