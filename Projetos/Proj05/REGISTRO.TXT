@@ -8,3 +8,6 @@
 008 27/09/2026 20:08:49 Zilda Boca Preta com Raiva         32 
 009 27/09/2026 20:09:12 Geilson Nao Tem Nada               23 
 010 27/09/2026 20:09:34 Julio Naum Tem Grana               23 
+011 27/09/2026 20:15:24 Telma Martino Anizio               24 
+012 27/09/2026 20:15:54 Que Bobeira da Silva               56 
+013 27/09/2026 20:16:14 Genival Lacerda                    78 

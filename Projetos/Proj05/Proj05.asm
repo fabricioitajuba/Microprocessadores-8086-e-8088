@@ -260,6 +260,8 @@ CRUD_LIST_ALL:
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
         JE      SAI_DOS                         ;Se FALSE, fecha o arquivo e sai para o DOS
 
+        XOR     CX, CX
+
 CRUD_LIST_ALL_LOOP:
         ;Faz a leitura do arquivo em blocos definidos por BUFFER_READ_SIZE:
         MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
@@ -278,9 +280,21 @@ CRUD_LIST_ALL_LOOP:
         ;Mostra o conteúdo do arquivo
         LEA     DX, BUFFER_READ                 ;Conteúdo do
         CALL    STR_PRINT                       ;arquivo.
+
+        ;Pausa a casa 5 visualização de registros
+        INC     CX
+        CMP     CX, 5
+        JNE     MOSTRA
+        XOR     CX, CX
+        CALL    CAR_READ
+
+MOSTRA:
         JMP     CRUD_LIST_ALL_LOOP
 
 CRUD_LIST_ALL_END:
+
+        LEA     DX, CRUD_MSG_TECLA
+        CALL    STR_PRINT
         CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
 
         JMP     INICIO_PROGRAMA
@@ -305,15 +319,24 @@ MAIN 	ENDP
 ;****************************************************************
 
 REGISTRO_CLEAR     PROC    NEAR
-      
+
+        PUSH    AX
+        PUSH    CX
+        PUSH    SI
+
         MOV     SI, 0
         MOV     AL, ' '
         XOR     CX, CX
         MOV     CX, BUFFER_WRITE_SIZE-2
+
 REGISTRO_CLEAR_LOOP:        
         MOV     REG_ID[SI], AL
         INC     SI
         LOOP    REGISTRO_CLEAR_LOOP
+
+        POP     SI
+        POP     CX
+        POP     AX
 
         RET
 
@@ -325,6 +348,10 @@ REGISTRO_CLEAR     ENDP
 
 BUFFER_READ_CLEAR     PROC    NEAR
 
+        PUSH    AX
+        PUSH    CX
+        PUSH    SI
+
         MOV     SI, 0
         MOV     AL, '$'
         XOR     CX, CX
@@ -334,6 +361,10 @@ BUFFER_READ_CLEAR_LOOP:
         MOV     BUFFER_READ[SI], AL
         INC     SI
         LOOP    BUFFER_READ_CLEAR_LOOP
+
+        POP     SI
+        POP     CX
+        POP     AX
 
         RET
 
@@ -413,6 +444,7 @@ DATA_SEG       SEGMENT PUBLIC
         CRUD_MSG_CREATE_SUCESSO DB CR,LF,'# Registro criado com sucesso!',CR,LF,'$'
         CRUD_MSG_TOTAL_BYTES DB CR,LF,CR,LF,'- Total de BYTES: ','$'
         CRUD_MSG_TOTAL_REGISTROS DB CR,LF,'- Total de REGISTROS: ','$'
+        CRUD_MSG_TECLA DB CR,LF,'# Pressione qualquer tecla para continuar... ','$'
 
         CRUD_MSG_LIST DB CR,LF,'-------------------------------------------------------------------',CR,LF
                       DB 'ID |   DATA   |  HORA  |              NOME                |IDADE   ',CR,LF
