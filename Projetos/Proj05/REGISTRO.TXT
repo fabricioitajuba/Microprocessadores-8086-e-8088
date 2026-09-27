@@ -10,3 +10,7 @@
 010 26/09/2026-13:41:30 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxx
 011 26/09/2026-22:11:15 teste                              22 
 012 26/09/2026-22:11:27 Tutu                               23 
+013 26/09/2026-22:17:33 teste2                             22 
+014 26/09/2026-22:53:34 Levith                             54 
+015 26/09/2026-22:54:03 Jaqueline Pietcovith               45 
+016 26/09/2026-22:55:14 Stanislav Duntra                   23 

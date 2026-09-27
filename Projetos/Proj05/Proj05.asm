@@ -12,8 +12,8 @@
 ; Lista  - Falta acrescentar break a cada tela cheia
 ;----------------------------------------------------
 
-BUFFER_READ_SIZE        EQU     1024
-BUFFER_WRITE_SIZE       EQU     64
+BUFFER_READ_SIZE        EQU     64      ;Buffer de leitura
+BUFFER_WRITE_SIZE       EQU     64      ;Buffer de escrita
 
 CGROUP  GROUP   CODE_SEG, DATA_SEG
         ASSUME  CS:CGROUP, DS:CGROUP
@@ -264,7 +264,8 @@ CRUD_LIST_ALL:
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
         JE      SAI_DOS                         ;Se FALSE, fecha o arquivo e sai para o DOS
 
-        ;Faz a leitura do arquivo:
+CRUD_LIST_ALL_LOOP:
+        ;Faz a leitura do arquivo em blocos definidos por BUFFER_READ_SIZE:
         MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
         MOV     HANDLE_IN, AX                   ;arquivo.
         MOV     AX, BUFFER_READ_SIZE            ;Configura o número
@@ -274,10 +275,16 @@ CRUD_LIST_ALL:
         CMP     AL, FALSE                       ;a variável FILE_STATUS.
         JE      SAI_DOS                         ;Se FALSE, sai para o DOS
 
+        MOV     AX, FILE_BYTES_READ
+        CMP     AX, 0
+        JE      CRUD_LIST_ALL_END
+
         ;Mostra o conteúdo do arquivo
         LEA     DX, BUFFER_READ                 ;Conteúdo do
         CALL    STR_PRINT                       ;arquivo.
+        JMP     CRUD_LIST_ALL_LOOP
 
+CRUD_LIST_ALL_END:
         CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
 
         JMP     INICIO_PROGRAMA
@@ -338,7 +345,7 @@ BUFFER_READ_CLEAR     PROC    NEAR
         MOV     SI, 0
         MOV     AL, '$'
         XOR     CX, CX
-        MOV     CX, BUFFER_READ_SIZE
+        MOV     CX, BUFFER_READ_SIZE+1
 
 BUFFER_READ_CLEAR_LOOP:        
         MOV     BUFFER_READ[SI], AL
@@ -378,12 +385,13 @@ DATA_SEG       SEGMENT PUBLIC
         EXTERN HANDLE_IN:WORD
         EXTERN FILE_NBYTES_H:WORD
         EXTERN FILE_NBYTES_L:WORD
+        EXTERN FILE_BYTES_READ:WORD
         EXTERN FILE_MODE:BYTE
 
         BUFFER_WRITE DB BUFFER_WRITE_SIZE DUP('$')                ;Buffer de leitura do arquivo
         BUFFER_WRITE_LEN DW BUFFER_WRITE_SIZE                     ;Quantidade de bytes a serem lidos
 
-        BUFFER_READ DB BUFFER_READ_SIZE DUP('$')                ;Buffer de leitura do arquivo
+        BUFFER_READ DB BUFFER_READ_SIZE+1 DUP('$')                ;Buffer de leitura do arquivo
         BUFFER_READ_LEN DW BUFFER_READ_SIZE                     ;Quantidade de bytes a serem lidos
 
         EXTERN FILE_STATUS:BYTE                                 ;Recebe a variável externa 
