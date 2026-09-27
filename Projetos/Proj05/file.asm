@@ -92,7 +92,8 @@ FILE_INSERT     PROC    NEAR
 
                 MOV     BX,HANDLE_IN
                 MOV     CX,BUFFER_WRITE_LEN
-                LEA     DX,BUFFER_WRITE
+                ;LEA     DX,BUFFER_WRITE    ;Alterado para
+                LEA     DX,REG_ID           ;o Proj05
                 MOV     AH,40H
                 INT     21H
                 JC      FILE_INSERT_ERROR
@@ -339,6 +340,8 @@ DATA_SEG        SEGMENT PUBLIC
                 EXTERN BUFFER_WRITE_LEN:WORD
                 EXTERN BUFFER_READ:BYTE
                 EXTERN BUFFER_READ_LEN:WORD
+
+                EXTERN REG_ID:BYTE
 
 DATA_SEG        ENDS
 

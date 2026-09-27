@@ -145,15 +145,33 @@ CRUD_CREATE:
 
         ;Copia o ID para o registro
         LEA     SI, DIGITOS+2
-        LEA     DI, BUFFER_WRITE
+        LEA     DI, REG_ID
         XOR     CX, CX
         MOV     CL, 3
         CLD
         REP     MOVSB
 
+        ;Adiciona Data
+        CALL    GET_DATA
+        LEA     SI, TIME_DATA
+        LEA     DI, REG_DATA
+        XOR     CX, CX
+        MOV     CL, 10
+        CLD
+        REP     MOVSB
+
+        ;Adiciona Hora
+        CALL    GET_TIME
+        LEA     SI, TIME_HORA
+        LEA     DI, REG_HORA
+        XOR     CX, CX
+        MOV     CL, 8
+        CLD
+        REP     MOVSB
+
         ;Copia o nome para o registro
         LEA     SI, NOME
-        LEA     DI, BUFFER_WRITE+24
+        LEA     DI, REG_NOME
         XOR     CX, CX
         MOV     CL, NOME_LEN_ACT
         CLD
@@ -161,34 +179,12 @@ CRUD_CREATE:
 
         ;Copia a idade para o registro
         LEA     SI, IDADE
-        LEA     DI, BUFFER_WRITE+59
+        LEA     DI, REG_IDADE
         XOR     CX, CX
         MOV     CL, IDADE_LEN_ACT
         CLD
         REP     MOVSB
 
-        ;Adiciona Data
-        CALL    GET_DATA
-        LEA     SI, TIME_DATA
-        LEA     DI, BUFFER_WRITE+4
-        XOR     CX, CX
-        MOV     CL, 10
-        CLD
-        REP     MOVSB
-
-        ;Separação entre data e hora
-        MOV     AL,'-'
-        MOV     BUFFER_WRITE+14, AL
-
-        ;Adiciona Hora
-        CALL    GET_TIME
-        LEA     SI, TIME_HORA
-        LEA     DI, BUFFER_WRITE+15
-        XOR     CX, CX
-        MOV     CL, 8
-        CLD
-        REP     MOVSB
- 
         ;Posiciona o ponteiro do arquivo no final do arquivo
         MOV     AL, 02H                         ;Posiciona o ponteiro
         MOV     FILE_ORIGIN, AL                 ;no FINAL do arquivo;
@@ -297,9 +293,6 @@ SAI_DOS:
         MOV     AX, HANDLE_OUT
         MOV     HANDLE_IN, AX
         CALL    FILE_CLOSE
-        ;MOV     AL, FILE_STATUS
-        ;CMP     AL, FALSE
-        ;JE      SAI_DOS
 
         ;Retorna ao sistema operacional
 	MOV     AH, 4CH
@@ -312,25 +305,15 @@ MAIN 	ENDP
 ;****************************************************************
 
 REGISTRO_CLEAR     PROC    NEAR
-
+      
         MOV     SI, 0
-        XOR     CX, CX
-        MOV     CX, 62
-
-REGISTRO_CLEAR_LOOP:        
-
         MOV     AL, ' '
-        MOV     BUFFER_WRITE[SI], AL
+        XOR     CX, CX
+        MOV     CX, BUFFER_WRITE_SIZE-2
+REGISTRO_CLEAR_LOOP:        
+        MOV     REG_ID[SI], AL
         INC     SI
         LOOP    REGISTRO_CLEAR_LOOP
-
-        MOV     SI, 62
-        MOV     AL, CR
-        MOV     BUFFER_WRITE[SI], AL
-
-        MOV     SI, 63
-        MOV     AL, LF
-        MOV     BUFFER_WRITE[SI], AL 
 
         RET
 
@@ -362,13 +345,26 @@ CODE_SEG	ENDS
 ; ÁREA DE DADOS
 ;****************************************************************
 
-        PUBLIC FILE_NAME, BUFFER_WRITE, BUFFER_WRITE_LEN, BUFFER_READ, BUFFER_READ_LEN
+        PUBLIC FILE_NAME, BUFFER_WRITE, BUFFER_WRITE_LEN, BUFFER_READ, BUFFER_READ_LEN, REG_ID
 
 DATA_SEG       SEGMENT PUBLIC
 
         ID              DW ?
         NUM_BYTES       DW ?
         EXTERN FILE_NUM_BYTES_L:WORD
+
+        ;Buffer de registro
+        REG_ID          DB 3 DUP(' ')
+                        DB ' '
+        REG_DATA        DB 10 DUP(' ')
+                        DB ' '
+        REG_HORA        DB 8 DUP(' ')
+                        DB ' '
+        REG_NOME        DB 34 DUP(' ')
+                        DB ' '
+        REG_IDADE       DB 3 DUP(' ')
+                        DB CR
+                        DB LF
 
         ;Armazena o nome
         NOME_LEN        DB 35  		;Tamanho do buffer 35 char+return
@@ -377,7 +373,7 @@ DATA_SEG       SEGMENT PUBLIC
 
         ;Armazena a idade
         IDADE_LEN       DB 4  		;Tamanho do buffer 4 char+return
-        IDADE_LEN_ACT   DB ?   	;Tamanho atual
+        IDADE_LEN_ACT   DB ?   	        ;Tamanho atual
         IDADE           DB 4 DUP(' ') 	;Buffer, 4 posições inicializadas com " "      
 
         FILE_NAME       DB 'registro.txt',0
