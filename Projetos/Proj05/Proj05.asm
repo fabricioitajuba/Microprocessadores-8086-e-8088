@@ -104,6 +104,8 @@ INICIO_PROGRAMA:
         CALL    CAR_PRINT        ;Mostra a tela pressionada
         CMP     AL,'C'
         JE      CRUD_CREATE
+        CMP     AL,'D'
+        JE      CRUD_DELETE        
         CMP     AL,'L'
         JE      CRUD_LIST_ALL
         CMP     AL,'Q'
@@ -230,6 +232,53 @@ CRUD_CREATE:
         CALL    STR_PRINT
 
         CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
+
+        JMP     INICIO_PROGRAMA
+;-------------------------------------------------------
+; FIM CREATE
+;-------------------------------------------------------
+
+;*******************************************************
+; DELETE - Deleta um registro
+;*******************************************************
+CRUD_DELETE:
+
+        LEA     DX, CRUD_DELETE_MSG1
+        CALL    STR_PRINT
+
+        LEA     DX, CRUD_DELETE_MSG2
+        CALL    STR_PRINT
+
+	LEA     DX, REGISTRO_LEN        ;Lê REGISTRO
+	MOV     AH, 0AH
+	INT     21H
+
+CRUD_DELETE_LOOP:
+        LEA     DX, CRUD_DELETE_MSG3
+        CALL    STR_PRINT
+
+        CALL    CAR_READ         ;Faz a leitura de uma tecla
+        MOV     DL, AL
+        CALL    CAR_PRINT        ;Mostra a tela pressionada
+        CMP     AL,'Y'
+        JE      CRUD_DELETE_Y
+        CMP     AL,'N'
+        JE      CRUD_DELETE_N
+        JMP     CRUD_DELETE_LOOP        
+
+CRUD_DELETE_Y:
+        LEA     DX, CRUD_DELETE_MSG4
+        CALL    STR_PRINT
+
+        ;Implementar 
+        JMP     CRUD_DELETE_EXIT
+
+CRUD_DELETE_N:
+        LEA     DX, CRUD_DELETE_MSG5
+        CALL    STR_PRINT
+
+CRUD_DELETE_EXIT:
+        CALL    CAR_READ                ;Faz a leitura de uma tecla <<<< TESTE 
 
         JMP     INICIO_PROGRAMA
 ;-------------------------------------------------------
@@ -402,6 +451,11 @@ DATA_SEG       SEGMENT PUBLIC
                         DB CR
                         DB LF
 
+        ;Armazena o registro
+        REGISTRO_LEN       DB 4  		;Tamanho do buffer 4 char+return
+        REGISTRO_LEN_ACT   DB ?   	        ;Tamanho atual
+        REGISTRO           DB 4 DUP(' ') 	;Buffer, 4 posições inicializadas com " "  
+
         ;Armazena o nome
         NOME_LEN        DB 35  		;Tamanho do buffer 35 char+return
         NOME_LEN_ACT    DB ?   		;Tamanho atual
@@ -454,6 +508,12 @@ DATA_SEG       SEGMENT PUBLIC
         CRUD_MSG_LIST DB CR,LF,'-------------------------------------------------------------------',CR,LF
                       DB 'ID |   DATA   |  HORA  |              NOME                |IDADE   ',CR,LF
                       DB '-------------------------------------------------------------------',CR,LF,'$'
+
+        CRUD_DELETE_MSG1 DB CR,LF,'### Deletar registro:',CR,LF,'$'
+        CRUD_DELETE_MSG2 DB CR,LF,'- Deseja deletar qual registro: ','$'
+        CRUD_DELETE_MSG3 DB CR,LF,'- Deseja mesmo deletar o registro? (Y/N)','$'
+        CRUD_DELETE_MSG4 DB CR,LF,'- Registro DELETADO com SUCESSO!','$'
+        CRUD_DELETE_MSG5 DB CR,LF,'- Registro NAO DELETADO!','$'
 
         ;Variáveis referentes a data e hora
         EXTERN TIME_HORA:BYTE
