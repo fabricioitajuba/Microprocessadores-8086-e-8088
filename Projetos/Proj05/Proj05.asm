@@ -8,8 +8,8 @@
 ; Create - Concluído
 ; Read   - Não implementado
 ; Update - Não implementado
-; Delete - Não implementado
-; Lista  - Falta acrescentar break a cada tela cheia
+; Delete - Implementando
+; Lista  - Concluído
 ;----------------------------------------------------
 
 BUFFER_READ_SIZE        EQU     64      ;Buffer de leitura
@@ -188,27 +188,27 @@ CRUD_CREATE:
         REP     MOVSB
 
         ;Posiciona o ponteiro do arquivo no final do arquivo
-        MOV     AL, 02H                         ;Posiciona o ponteiro
-        MOV     FILE_ORIGIN, AL                 ;no FINAL do arquivo;
-        MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
-        MOV     HANDLE_IN, AX                   ;arquivo.
-        MOV     AX, 0000h                       ;Deslocamento
-        MOV     FILE_NBYTES_H, AX               ;MSB
-        MOV     FILE_NBYTES_L, AX               ;LSB.
-        CALL    FILE_POINTER                    ;Tenta posicionar o ponteiro.
-        MOV     AL, FILE_STATUS                 ;Verifica 
-        CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        JE      SAI_DOS                         ;Se FALSE, fecha o arquivo e sai para o DOS
+        MOV     AL, 02H
+        MOV     FILE_ORIGIN, AL
+        MOV     AX, HANDLE_OUT
+        MOV     HANDLE_IN, AX
+        MOV     AX, 0000h
+        MOV     FILE_NBYTES_H, AX
+        MOV     FILE_NBYTES_L, AX
+        CALL    FILE_POINTER
+        MOV     AL, FILE_STATUS
+        CMP     AL, FALSE
+        JE      SAI_DOS
 
         ;Insere dados no arquivo        
-        MOV     AX, BUFFER_WRITE_SIZE           ;Número de bytes
-        MOV     BUFFER_WRITE_LEN, AX            ;Configura o número de bytes
-        MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
-        MOV     HANDLE_IN, AX                   ;arquivo.
-        CALL    FILE_INSERT                     ;Insere dados no arquivo
-        MOV     AL, FILE_STATUS                 ;Verifica
-        CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        JE      SAI_DOS                         ;Se FALSE, sai para o DOS
+        MOV     AX, BUFFER_WRITE_SIZE
+        MOV     BUFFER_WRITE_LEN, AX
+        MOV     AX, HANDLE_OUT
+        MOV     HANDLE_IN, AX
+        CALL    FILE_INSERT
+        MOV     AL, FILE_STATUS
+        CMP     AL, FALSE
+        JE      SAI_DOS
 
         LEA     DX, CRUD_MSG_CREATE_SUCESSO
         CALL    STR_PRINT
@@ -253,7 +253,7 @@ CRUD_DELETE:
 	MOV     AH, 0AH
 	INT     21H
 
-CRUD_DELETE_LOOP:
+CRUD_DELETE_LOOP1:
         LEA     DX, CRUD_DELETE_MSG3
         CALL    STR_PRINT
 
@@ -264,13 +264,58 @@ CRUD_DELETE_LOOP:
         JE      CRUD_DELETE_Y
         CMP     AL,'N'
         JE      CRUD_DELETE_N
-        JMP     CRUD_DELETE_LOOP        
+        JMP     CRUD_DELETE_LOOP1     
 
 CRUD_DELETE_Y:
         LEA     DX, CRUD_DELETE_MSG4
         CALL    STR_PRINT
 
         ;Implementar 
+
+        ;Limpa o buffer do registro
+        MOV     SI, 0
+        MOV     AL, '$'
+        XOR     CX, CX
+        MOV     CX, 3
+CRUD_DELETE_LOOP2:        
+        MOV     REG_BUFFER[SI], AL
+        INC     SI
+        LOOP    CRUD_DELETE_LOOP2
+
+        ;Move a String digitada para o buffer
+        LEA     SI, REGISTRO
+        LEA     DI, REG_BUFFER
+        XOR     CX, CX
+        MOV     CL, REGISTRO_LEN_ACT
+        CLD
+        REP     MOVSB
+
+    ;Converter String Decimal para Número Inteiro (em AX)
+        LEA     SI, REG_BUFFER
+        XOR     AX, AX
+        XOR     CX, CX
+
+conv_dec:
+        MOV     CL, [SI]
+        CMP     CL, '$'
+        JE      fim_conv_dec
+        SUB     CL, '0'         
+        MOV     BX, 10
+        MUL     BX
+        ADD     AX, CX   
+        INC     SI
+        JMP     conv_dec
+fim_conv_dec:
+    ; Neste ponto, AX contém o número inteiro (Ex: 12345 ou 3039h)
+
+        CALL    HEXA2DECIMAL16  ;TESTE
+        MOV     DL, DIGITOS+2   ;TESTE
+        CALL    CAR_PRINT       ;TESTE
+        MOV     DL, DIGITOS+3   ;TESTE
+        CALL    CAR_PRINT       ;TESTE
+        MOV     DL, DIGITOS+4   ;TESTE
+        CALL    CAR_PRINT       ;TESTE
+
         JMP     CRUD_DELETE_EXIT
 
 CRUD_DELETE_N:
@@ -450,6 +495,8 @@ DATA_SEG       SEGMENT PUBLIC
         REG_IDADE       DB 3 DUP(' ')
                         DB CR
                         DB LF
+
+        REG_BUFFER      DB 4 DUP('$')
 
         ;Armazena o registro
         REGISTRO_LEN       DB 4  		;Tamanho do buffer 4 char+return
