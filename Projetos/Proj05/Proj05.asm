@@ -6,7 +6,7 @@
 ; Autor: Eng. Fabrício Ribeiro
 ; Etapas: 
 ; Create - Concluído
-; Read   - Não implementado
+; Read   - implementando
 ; Update - Não implementado
 ; Delete - Concluído
 ; Lista  - Concluído
@@ -90,13 +90,17 @@ INICIO_PROGRAMA:
 
         CALL    CLR_SCREEN      ;Limpa a tela
 
-        ;MensageNS inicias
+
         LEA     DX, CRUD_MSG_INI1
         CALL    STR_PRINT
         LEA     DX, CRUD_MSG_INI2
         CALL    STR_PRINT
         LEA     DX, CRUD_MSG_INI1
         CALL    STR_PRINT
+
+        ;******************************
+        ;MENU
+        ;******************************
         LEA     DX, CRUD_MSG_INI3
         CALL    STR_PRINT                        
 
@@ -105,6 +109,8 @@ INICIO_PROGRAMA:
         CALL    CAR_PRINT        ;Mostra a tela pressionada
         CMP     AL,'C'
         JE      CRUD_CREATE
+        CMP     AL,'R'
+        JE      CRUD_READ
         CMP     AL,'D'
         JE      CRUD_DELETE        
         CMP     AL,'L'
@@ -240,6 +246,88 @@ CRUD_CREATE:
 ;-------------------------------------------------------
 
 ;*******************************************************
+; CRUD_READ - Lê um registro
+;*******************************************************
+CRUD_READ:
+        LEA     DX, CRUD_READ_MSG1
+        CALL    STR_PRINT
+
+        LEA     DX, CRUD_READ_MSG2
+        CALL    STR_PRINT
+
+	LEA     DX, REGISTRO_LEN        ;Lê REGISTRO
+	MOV     AH, 0AH
+	INT     21H
+
+;Implementar
+        ;Limpa o buffer do registro
+        MOV    SI, 0
+        MOV    AL, '$'
+;        XOR     CX, CX
+;        MOV     CX, 3
+;  CRUD_READ_LOOP2:        
+;        MOV     REG_BUFFER[SI], AL
+;        INC     SI
+;        LOOP    CRUD_READ_LOOP2
+
+;        ;Move a String digitada para o buffer
+;        LEA     SI, REGISTRO
+;        LEA     DI, REG_BUFFER
+;        XOR     CX, CX
+;        MOV     CL, REGISTRO_LEN_ACT
+;        CLD
+;        REP     MOVSB
+
+;         ;Converter String Decimal para Número Inteiro (em AX)
+;        LEA     SI, REG_BUFFER
+;        CALL    STRING_DECIMAL        
+
+        ; ;Calcula o OFFSET do REGISTRO
+        ; DEC     AX
+        ; MOV     BL, 64
+        ; MUL     BL              ;AX agora tem o OFFSET do REGISTRO
+        ; MOV     REG_OFFSET, AX
+
+        ; ;Limpa o registro
+        ; CALL    REGISTRO_CLEAR  
+
+        ; ;Posiciona o ponteiro do arquivo no início
+        ; MOV     AL, 00H
+        ; MOV     FILE_ORIGIN, AL
+        ; MOV     AX, HANDLE_OUT
+        ; MOV     HANDLE_IN, AX
+        ; MOV     AX, 0000h
+        ; MOV     FILE_NBYTES_H, AX
+        ; MOV     AX, REG_OFFSET  ;Faz a leitura a partir do OFFSET       
+        ; MOV     FILE_NBYTES_L, AX
+        ; CALL    FILE_POINTER
+        ; MOV     AL, FILE_STATUS
+        ; CMP     AL, FALSE
+        ; JE      SAI_DOS
+
+        ; ;Faz a leitura da linhado arquivo em blocos definidos por BUFFER_READ_SIZE:
+        ; MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
+        ; MOV     HANDLE_IN, AX                   ;arquivo.
+        ; MOV     AX, BUFFER_READ_SIZE            ;Configura o número
+        ; MOV     BUFFER_READ_LEN, AX             ;de bytes para serem lidos.
+        ; CALL    FILE_READ                       ;Tenta fazer a leitura do arquivo.
+        ; MOV     AL, FILE_STATUS                 ;Verifica
+        ; CMP     AL, FALSE                       ;a variável FILE_STATUS.
+        ; JE      SAI_DOS                         ;Se FALSE, sai para o DOS
+
+        ; ;Mostra o conteúdo do registro
+        ; LEA     DX, BUFFER_READ                 ;Conteúdo do
+        ; CALL    STR_PRINT                       ;arquivo.
+;Implementar
+
+        CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
+
+        JMP     INICIO_PROGRAMA
+;-------------------------------------------------------
+; FIM READ
+;-------------------------------------------------------
+
+;*******************************************************
 ; DELETE - Deleta um registro
 ;*******************************************************
 CRUD_DELETE:
@@ -309,9 +397,7 @@ CRUD_DELETE_LOOP2:
         MOV     HANDLE_IN, AX
         MOV     AX, 0000h
         MOV     FILE_NBYTES_H, AX
-        
-        MOV     AX, REG_OFFSET
-        
+        MOV     AX, REG_OFFSET  ;Faz a leitura a partir do OFFSET
         MOV     FILE_NBYTES_L, AX
         CALL    FILE_POINTER
         MOV     AL, FILE_STATUS
@@ -571,10 +657,13 @@ DATA_SEG       SEGMENT PUBLIC
                       DB '-------------------------------------------------------------------',CR,LF,'$'
 
         CRUD_DELETE_MSG1 DB CR,LF,'### Deletar registro:',CR,LF,'$'
-        CRUD_DELETE_MSG2 DB CR,LF,'- Deseja deletar qual registro: ','$'
+        CRUD_DELETE_MSG2 DB CR,LF,'- Deseja deletar qual registro? ','$'
         CRUD_DELETE_MSG3 DB CR,LF,'- Deseja mesmo deletar o registro? (Y/N)','$'
         CRUD_DELETE_MSG4 DB CR,LF,'- Registro DELETADO com SUCESSO!','$'
         CRUD_DELETE_MSG5 DB CR,LF,'- Registro NAO DELETADO!','$'
+
+        CRUD_READ_MSG1 DB CR,LF,'### Ler registro:',CR,LF,'$'
+        CRUD_READ_MSG2 DB CR,LF,'- Deseja ler qual registro? ','$'
 
         ;Variáveis referentes a data e hora
         EXTERN TIME_HORA:BYTE
