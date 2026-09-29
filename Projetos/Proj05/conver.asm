@@ -5,6 +5,8 @@
 ; IMP_DIG_HEXA - Converte os 4 bits baixos em DL em hexa;
 ; IMP_DECIMAL - Imprime um numero de 16 bits sem sinal em notacao decimal
 ; DECIMAL99 - converte um número em hexadecimal menor ou igual a 63h em decimal.
+; STRING_DECIMAL - Converte uma STRING de números em valor hexadecimal para 
+;                  usar em cálculos.
 ; HEXA2DECIMAL16 - converte um número em hexadecimal de 16 bits em decimal 
 ;                  colocando o valor em uma string com 6 posições de memória;
 ;*************************************************************************
@@ -148,6 +150,49 @@ DECIMAL99   PROC    NEAR
             RET       
 
 DECIMAL99   ENDP
+
+;----------------------------------------------------------------
+; FIM DECIMAL99
+;----------------------------------------------------------------
+
+;****************************************************************
+; STRING_DECIMAL - Essa rotina, converte uma STRING de números em
+; valor hexadecimal para usar em cálculos
+;
+; Entrada:   SI - Ponteiro da string
+; Saída:     AX - Valor do número
+;****************************************************************
+
+                PUBLIC  STRING_DECIMAL
+
+STRING_DECIMAL   PROC    NEAR
+
+            PUSH    BX
+            PUSH    CX
+            PUSH    SI
+
+            XOR     AX, AX
+            XOR     CX, CX
+
+STRING_DECIMAL_LOOP:
+            MOV     CL, [SI]
+            CMP     CL, '$'
+            JE      STRING_DECIMAL_END
+            SUB     CL, '0'         
+            MOV     BX, 10
+            MUL     BX
+            ADD     AX, CX   
+            INC     SI
+            JMP     STRING_DECIMAL_LOOP
+STRING_DECIMAL_END:
+
+            POP     SI
+            POP     CX
+            POP     BX
+            
+            RET       
+
+STRING_DECIMAL   ENDP
 
 ;----------------------------------------------------------------
 ; FIM DECIMAL99

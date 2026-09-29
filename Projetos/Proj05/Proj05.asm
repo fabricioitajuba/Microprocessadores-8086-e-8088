@@ -8,7 +8,7 @@
 ; Create - Concluído
 ; Read   - Não implementado
 ; Update - Não implementado
-; Delete - Implementando
+; Delete - Concluído
 ; Lista  - Concluído
 ;----------------------------------------------------
 
@@ -34,6 +34,7 @@ CODE_SEG	SEGMENT PUBLIC
 
         EXTRN   CLR_SCREEN:NEAR
         EXTRN   HEXA2DECIMAL16:NEAR
+        EXTRN   STRING_DECIMAL:NEAR
 
         EXTRN   FILE_CREATE:NEAR
         EXTRN   FILE_INSERT:NEAR
@@ -270,8 +271,6 @@ CRUD_DELETE_Y:
         LEA     DX, CRUD_DELETE_MSG4
         CALL    STR_PRINT
 
-        ;Implementar 
-
         ;Limpa o buffer do registro
         MOV     SI, 0
         MOV     AL, '$'
@@ -290,31 +289,44 @@ CRUD_DELETE_LOOP2:
         CLD
         REP     MOVSB
 
-    ;Converter String Decimal para Número Inteiro (em AX)
+        ;Converter String Decimal para Número Inteiro (em AX)
         LEA     SI, REG_BUFFER
-        XOR     AX, AX
-        XOR     CX, CX
+        CALL    STRING_DECIMAL        
 
-conv_dec:
-        MOV     CL, [SI]
-        CMP     CL, '$'
-        JE      fim_conv_dec
-        SUB     CL, '0'         
-        MOV     BX, 10
-        MUL     BX
-        ADD     AX, CX   
-        INC     SI
-        JMP     conv_dec
-fim_conv_dec:
-    ; Neste ponto, AX contém o número inteiro (Ex: 12345 ou 3039h)
+        ;Calcula o OFFSET do REGISTRO
+        DEC     AX
+        MOV     BL, 64
+        MUL     BL              ;AX agora tem o OFFSET do REGISTRO
+        MOV     REG_OFFSET, AX
 
-        CALL    HEXA2DECIMAL16  ;TESTE
-        MOV     DL, DIGITOS+2   ;TESTE
-        CALL    CAR_PRINT       ;TESTE
-        MOV     DL, DIGITOS+3   ;TESTE
-        CALL    CAR_PRINT       ;TESTE
-        MOV     DL, DIGITOS+4   ;TESTE
-        CALL    CAR_PRINT       ;TESTE
+        ;Limpa o registro
+        CALL    REGISTRO_CLEAR  
+
+        ;Posiciona o ponteiro do arquivo no início
+        MOV     AL, 00H
+        MOV     FILE_ORIGIN, AL
+        MOV     AX, HANDLE_OUT
+        MOV     HANDLE_IN, AX
+        MOV     AX, 0000h
+        MOV     FILE_NBYTES_H, AX
+        
+        MOV     AX, REG_OFFSET
+        
+        MOV     FILE_NBYTES_L, AX
+        CALL    FILE_POINTER
+        MOV     AL, FILE_STATUS
+        CMP     AL, FALSE
+        JE      SAI_DOS
+
+        ;Insere caracteres em "branco" no arquivo        
+        MOV     AX, BUFFER_WRITE_SIZE
+        MOV     BUFFER_WRITE_LEN, AX
+        MOV     AX, HANDLE_OUT
+        MOV     HANDLE_IN, AX
+        CALL    FILE_INSERT
+        MOV     AL, FILE_STATUS
+        CMP     AL, FALSE
+        JE      SAI_DOS
 
         JMP     CRUD_DELETE_EXIT
 
@@ -482,6 +494,8 @@ DATA_SEG       SEGMENT PUBLIC
         ID              DW ?
         NUM_BYTES       DW ?
         EXTERN FILE_NUM_BYTES_L:WORD
+
+        REG_OFFSET      DW ?
 
         ;Buffer de registro
         REG_ID          DB 3 DUP(' ')
