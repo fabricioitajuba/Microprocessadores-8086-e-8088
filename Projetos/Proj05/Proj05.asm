@@ -55,7 +55,7 @@ MAIN	PROC NEAR
         CALL    FILE_APPEND
         MOV     AL, FILE_STATUS
         CMP     AL, TRUE      
-        JE      INICIO_PROGRAMA
+        JE      INICIO
 
         ;Cria o arquivo
         MOV     AX, 0
@@ -67,8 +67,7 @@ MAIN	PROC NEAR
         MOV     ID, AX          ;de registros.
         JE      SAI_DOS      
 
-INICIO_PROGRAMA:
-
+INICIO:
         ;Calcula do tamanho de bytes do arquivo lido
         MOV     AL, 02H
         MOV     FILE_ORIGIN, AL
@@ -88,8 +87,8 @@ INICIO_PROGRAMA:
         DIV     BL              ;Quantidade de registros.
         MOV     ID, AX          ;Guarda a quantidade de registros.
 
+INICIO_PROGRAMA:
         CALL    CLR_SCREEN      ;Limpa a tela
-
 
         LEA     DX, CRUD_MSG_INI1
         CALL    STR_PRINT
@@ -535,9 +534,9 @@ CRUD_LIST_ALL_LOOP:
         LEA     DX, BUFFER_READ                 ;Conteúdo do
         CALL    STR_PRINT                       ;arquivo.
 
-        ;Pausa a casa 5 visualização de registros
+        ;Pausa a casa 10 visualização de registros
         INC     CX
-        CMP     CX, 5
+        CMP     CX, 10
         JNE     MOSTRA
         XOR     CX, CX          ;Zera CX
               
