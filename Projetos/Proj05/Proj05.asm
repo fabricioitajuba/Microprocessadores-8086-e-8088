@@ -6,7 +6,7 @@
 ; Autor: Eng. Fabrício Ribeiro
 ; Etapas: 
 ; Create - Concluído
-; Read   - implementando
+; Read   - Concluído
 ; Update - Não implementado
 ; Delete - Concluído
 ; Lista  - Concluído
@@ -96,6 +96,14 @@ INICIO_PROGRAMA:
         LEA     DX, CRUD_MSG_INI2
         CALL    STR_PRINT
         LEA     DX, CRUD_MSG_INI1
+        CALL    STR_PRINT
+
+        ;Mostra o total de registros
+        LEA     DX, CRUD_MSG_INI4
+        CALL    STR_PRINT
+        MOV     AX, ID
+        CALL    HEXA2DECIMAL16
+        LEA     DX, DIGITOS
         CALL    STR_PRINT
 
         ;******************************
@@ -259,66 +267,118 @@ CRUD_READ:
 	MOV     AH, 0AH
 	INT     21H
 
-;Implementar
         ;Limpa o buffer do registro
-        MOV    SI, 0
-        MOV    AL, '$'
-;        XOR     CX, CX
-;        MOV     CX, 3
-;  CRUD_READ_LOOP2:        
-;        MOV     REG_BUFFER[SI], AL
-;        INC     SI
-;        LOOP    CRUD_READ_LOOP2
+        MOV     SI, 0
+        MOV     AL, '$'
+        XOR     CX, CX
+        MOV     CX, 3
+  CRUD_READ_LOOP1:        
+        MOV     REG_BUFFER[SI], AL
+        INC     SI
+        LOOP    CRUD_READ_LOOP1
 
-;        ;Move a String digitada para o buffer
-;        LEA     SI, REGISTRO
-;        LEA     DI, REG_BUFFER
-;        XOR     CX, CX
-;        MOV     CL, REGISTRO_LEN_ACT
-;        CLD
-;        REP     MOVSB
+        ;Move a String digitada para o buffer
+        LEA     SI, REGISTRO
+        LEA     DI, REG_BUFFER
+        XOR     CX, CX
+        MOV     CL, REGISTRO_LEN_ACT
+        CLD
+        REP     MOVSB
 
-;         ;Converter String Decimal para Número Inteiro (em AX)
-;        LEA     SI, REG_BUFFER
-;        CALL    STRING_DECIMAL        
+        ;Converter String Decimal para Número Inteiro (em AX)
+        LEA     SI, REG_BUFFER
+        CALL    STRING_DECIMAL        
 
-        ; ;Calcula o OFFSET do REGISTRO
-        ; DEC     AX
-        ; MOV     BL, 64
-        ; MUL     BL              ;AX agora tem o OFFSET do REGISTRO
-        ; MOV     REG_OFFSET, AX
+        ;Calcula o OFFSET do REGISTRO
+        DEC     AX
+        MOV     BL, 64
+        MUL     BL              ;AX agora tem o OFFSET do REGISTRO
+        MOV     REG_OFFSET, AX
 
-        ; ;Limpa o registro
-        ; CALL    REGISTRO_CLEAR  
+        ;Limpa o registro
+        CALL    REGISTRO_CLEAR  
 
-        ; ;Posiciona o ponteiro do arquivo no início
-        ; MOV     AL, 00H
-        ; MOV     FILE_ORIGIN, AL
-        ; MOV     AX, HANDLE_OUT
-        ; MOV     HANDLE_IN, AX
-        ; MOV     AX, 0000h
-        ; MOV     FILE_NBYTES_H, AX
-        ; MOV     AX, REG_OFFSET  ;Faz a leitura a partir do OFFSET       
-        ; MOV     FILE_NBYTES_L, AX
-        ; CALL    FILE_POINTER
-        ; MOV     AL, FILE_STATUS
-        ; CMP     AL, FALSE
-        ; JE      SAI_DOS
+        ;Posiciona o ponteiro do arquivo no início
+        MOV     AL, 00H
+        MOV     FILE_ORIGIN, AL
+        MOV     AX, HANDLE_OUT
+        MOV     HANDLE_IN, AX
+        MOV     AX, 0000h
+        MOV     FILE_NBYTES_H, AX
+        MOV     AX, REG_OFFSET  ;Faz a leitura a partir do OFFSET       
+        MOV     FILE_NBYTES_L, AX
+        CALL    FILE_POINTER
+        MOV     AL, FILE_STATUS
+        CMP     AL, FALSE
+        JE      SAI_DOS
 
-        ; ;Faz a leitura da linhado arquivo em blocos definidos por BUFFER_READ_SIZE:
-        ; MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
-        ; MOV     HANDLE_IN, AX                   ;arquivo.
-        ; MOV     AX, BUFFER_READ_SIZE            ;Configura o número
-        ; MOV     BUFFER_READ_LEN, AX             ;de bytes para serem lidos.
-        ; CALL    FILE_READ                       ;Tenta fazer a leitura do arquivo.
-        ; MOV     AL, FILE_STATUS                 ;Verifica
-        ; CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        ; JE      SAI_DOS                         ;Se FALSE, sai para o DOS
+        ;Faz a leitura da linhado arquivo em blocos definidos por BUFFER_READ_SIZE:
+        MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
+        MOV     HANDLE_IN, AX                   ;arquivo.
+        MOV     AX, BUFFER_READ_SIZE            ;Configura o número
+        MOV     BUFFER_READ_LEN, AX             ;de bytes para serem lidos.
+        CALL    FILE_READ                       ;Tenta fazer a leitura do arquivo.
+        MOV     AL, FILE_STATUS                 ;Verifica
+        CMP     AL, FALSE                       ;a variável FILE_STATUS.
+        JE      SAI_DOS                         ;Se FALSE, sai para o DOS
 
-        ; ;Mostra o conteúdo do registro
-        ; LEA     DX, BUFFER_READ                 ;Conteúdo do
-        ; CALL    STR_PRINT                       ;arquivo.
-;Implementar
+        ;Mostra o conteúdo do registro
+        ;LEA     DX, BUFFER_READ                 ;Conteúdo do
+        ;CALL    STR_PRINT                       ;registro.
+
+        ;Mostra o nome
+        LEA     DX, CRUD_READ_MSG3
+        CALL    STR_PRINT
+
+        XOR     CX, CX
+
+        MOV     SI, 0
+        MOV     CX, 34
+  CRUD_READ_LOOP2:        
+        MOV     DL, BUFFER_READ[SI]+24
+        CALL    CAR_PRINT
+        INC     SI
+        LOOP    CRUD_READ_LOOP2
+
+        ;Mostra a idade
+        LEA     DX, CRUD_READ_MSG4
+        CALL    STR_PRINT        
+
+        MOV     SI, 0
+        MOV     CX, 3
+  CRUD_READ_LOOP3:        
+        MOV     DL, BUFFER_READ[SI]+59
+        CALL    CAR_PRINT
+        INC     SI
+        LOOP    CRUD_READ_LOOP3
+
+        ;Mostra a data da inclusão
+        LEA     DX, CRUD_READ_MSG5
+        CALL    STR_PRINT
+
+        MOV     SI, 0
+        MOV     CX, 10
+  CRUD_READ_LOOP4:        
+        MOV     DL, BUFFER_READ[SI]+4
+        CALL    CAR_PRINT
+        INC     SI
+        LOOP    CRUD_READ_LOOP4
+
+        ;Mostra a hora da inclusão
+        LEA     DX, CRUD_READ_MSG6
+        CALL    STR_PRINT        
+
+        MOV     SI, 0
+        MOV     CX, 8
+  CRUD_READ_LOOP5:        
+        MOV     DL, BUFFER_READ[SI]+15
+        CALL    CAR_PRINT
+        INC     SI
+        LOOP    CRUD_READ_LOOP5
+
+        ;Mostra a hora da inclusão
+        LEA     DX, CRUD_MSG_TECLA
+        CALL    STR_PRINT
 
         CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
 
@@ -479,9 +539,15 @@ CRUD_LIST_ALL_LOOP:
         INC     CX
         CMP     CX, 5
         JNE     MOSTRA
-
-        XOR     CX, CX        
+        XOR     CX, CX          ;Zera CX
+              
+        ;Sai ou continua
+        LEA     DX, CRUD_MSG_TECLA2
+        CALL    STR_PRINT
         CALL    CAR_READ
+        CMP     AL, 'X'
+        JE      INICIO_PROGRAMA
+
         CALL    CLR_SCREEN      ;Limpa a tela
         JMP     CRUD_LIST_ALL_LOOP1
 
@@ -633,9 +699,10 @@ DATA_SEG       SEGMENT PUBLIC
         EXTERN STR_LENGHT:WORD                                  ;tamanho do texto
 
         ;Mensagens
-        CRUD_MSG_INI1 DB CR,LF,'---------------------------------',CR,LF,'$'
-        CRUD_MSG_INI2 DB '### CRUD versao 1.0, 21/09/2026','$'
-        CRUD_MSG_INI3 DB '- O que Voce deseja?',CR,LF,CR,LF
+        CRUD_MSG_INI1 DB '---------------------------------',CR,LF,'$'
+        CRUD_MSG_INI2 DB '### CRUD versao 1.0, 21/09/2026',CR,LF,'$'
+        CRUD_MSG_INI4 DB '## Total de registros: ','$'
+        CRUD_MSG_INI3 DB CR,LF,CR,LF,'- O que Voce deseja?',CR,LF,CR,LF
                       DB 'C - Criar um registro;',CR,LF
                       DB 'R - Ler um registro;',CR,LF
                       DB 'U - Atualizar um registro;',CR,LF
@@ -651,6 +718,7 @@ DATA_SEG       SEGMENT PUBLIC
         CRUD_MSG_TOTAL_BYTES DB CR,LF,CR,LF,'- Total de BYTES: ','$'
         CRUD_MSG_TOTAL_REGISTROS DB CR,LF,'- Total de REGISTROS: ','$'
         CRUD_MSG_TECLA DB CR,LF,CR,LF,'# Pressione qualquer tecla para continuar... ','$'
+        CRUD_MSG_TECLA2 DB CR,LF,CR,LF,'# Pressione qualquer tecla para continuar ou (X) para Sair... ','$'
 
         CRUD_MSG_LIST DB CR,LF,'-------------------------------------------------------------------',CR,LF
                       DB 'ID |   DATA   |  HORA  |              NOME                |IDADE   ',CR,LF
@@ -664,6 +732,10 @@ DATA_SEG       SEGMENT PUBLIC
 
         CRUD_READ_MSG1 DB CR,LF,'### Ler registro:',CR,LF,'$'
         CRUD_READ_MSG2 DB CR,LF,'- Deseja ler qual registro? ','$'
+        CRUD_READ_MSG3 DB CR,LF,CR,LF,'- Nome: ','$'
+        CRUD_READ_MSG4 DB CR,LF,'- Idade: ','$'
+        CRUD_READ_MSG5 DB CR,LF,'- Data da inclusao: ','$'
+        CRUD_READ_MSG6 DB CR,LF,'- Hora da inclusao: ','$'
 
         ;Variáveis referentes a data e hora
         EXTERN TIME_HORA:BYTE

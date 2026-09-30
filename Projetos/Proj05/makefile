@@ -3,7 +3,7 @@ TARGET = Proj05.exe
 
 # Lista de todos os arquivos objetos (.obj) que serão gerados
 # Adicione aqui os nomes de todos os seus módulos separados por espaço
-OBJECTS = Proj05.obj strings.obj file.obj graphic.obj time.obj conver.obj
+OBJECTS = Proj05.obj file.obj conver.obj strings.obj time.obj graphic.obj
 
 # Compilador e Linker do MASM 6.11
 AS = ml
@@ -24,6 +24,7 @@ all: $(TARGET)
 # Regra de Linkagem: Junta todos os .obj em um .exe
 $(TARGET): $(OBJECTS)
 	$(LD) $(LDFLAGS) $(OBJECTS), $(TARGET);
+#	$(LD) $(LDFLAGS) $(OBJECTS),$(TARGET),,;
 
 # Regra de Sufixo (Regra Implícita): 
 # Ensina o NMAKE a transformar qualquer arquivo .asm em .obj automaticamente
