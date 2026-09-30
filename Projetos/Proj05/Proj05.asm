@@ -7,7 +7,7 @@
 ; Etapas: 
 ; Create - Concluído
 ; Read   - Concluído
-; Update - Não implementado
+; Update - Concluído
 ; Delete - Concluído
 ; Lista  - Concluído
 ;----------------------------------------------------
@@ -309,7 +309,7 @@ CRUD_READ:
         MOV     HANDLE_IN, AX
         MOV     AX, 0000h
         MOV     FILE_NBYTES_H, AX
-        MOV     AX, REG_OFFSET  ;Faz a leitura a partir do OFFSET       
+        MOV     AX, REG_OFFSET          ;Faz a leitura a partir do OFFSET       
         MOV     FILE_NBYTES_L, AX
         CALL    FILE_POINTER
         MOV     AL, FILE_STATUS
@@ -317,14 +317,14 @@ CRUD_READ:
         JE      SAI_DOS
 
         ;Faz a leitura da linhado arquivo em blocos definidos por BUFFER_READ_SIZE:
-        MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
-        MOV     HANDLE_IN, AX                   ;arquivo.
-        MOV     AX, BUFFER_READ_SIZE            ;Configura o número
-        MOV     BUFFER_READ_LEN, AX             ;de bytes para serem lidos.
-        CALL    FILE_READ                       ;Tenta fazer a leitura do arquivo.
-        MOV     AL, FILE_STATUS                 ;Verifica
-        CMP     AL, FALSE                       ;a variável FILE_STATUS.
-        JE      SAI_DOS                         ;Se FALSE, sai para o DOS
+        MOV     AX, HANDLE_OUT
+        MOV     HANDLE_IN, AX
+        MOV     AX, BUFFER_READ_SIZE
+        MOV     BUFFER_READ_LEN, AX
+        CALL    FILE_READ
+        MOV     AL, FILE_STATUS
+        CMP     AL, FALSE
+        JE      SAI_DOS
 
         ;Mostra o conteúdo do registro
         ;LEA     DX, BUFFER_READ                 ;Conteúdo do
@@ -572,15 +572,6 @@ CRUD_UPDATE:
 
 CRUD_UPDADE_ATUALIZA:
         ;Prepara os dados que serão inseridos
-
-        ;Utiliza o mesmo ID
-        ;Copia o ID para o registro
-        ; LEA     SI, REG_BUFFER
-        ; LEA     DI, REG_ID
-        ; XOR     CX, CX
-        ; MOV     CL, 3
-        ; CLD
-        ; REP     MOVSB
 
         ;Adiciona Data
         CALL    GET_DATA
