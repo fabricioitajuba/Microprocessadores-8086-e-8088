@@ -1,4 +1,4 @@
-001 27/09/2026 20:06:13 Astrogildo Apolinario dos Santos   63 
+001 30/09/2026 20:09:15 Apolonio da Praca e Nossa          95 
 002 27/09/2026 20:06:30 Teodato de Souza                   43 
 003 27/09/2026 20:06:49 Michael Jeackson da Silva          12 
 004 27/09/2026 20:07:14 Genifacil Teodoro da Fonseca Paiva 78 
@@ -20,3 +20,5 @@
 020 29/09/2026 22:45:38 Astrolandio Kimono Suado           33 
 021 29/09/2026 22:47:36 Cossa As Costas com Varal          20 
 022 29/09/2026 22:56:16 Estabola Esta Rodando              22 
+023 30/09/2026 18:24:40 didi                               22 
+024 30/09/2026 20:08:03 Dede Santana da Silva              84 

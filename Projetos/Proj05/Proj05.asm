@@ -118,6 +118,8 @@ INICIO_PROGRAMA:
         JE      CRUD_CREATE
         CMP     AL,'R'
         JE      CRUD_READ
+        CMP     AL,'U'
+        JE      CRUD_UPDATE        
         CMP     AL,'D'
         JE      CRUD_DELETE        
         CMP     AL,'L'
@@ -387,6 +389,252 @@ CRUD_READ:
         JMP     INICIO_PROGRAMA
 ;-------------------------------------------------------
 ; FIM READ
+;-------------------------------------------------------
+
+;*******************************************************
+; UPDATE - Atualiza um registro
+;*******************************************************
+CRUD_UPDATE:
+        
+        LEA     DX, CRUD_UPDATE_MSG1
+        CALL    STR_PRINT
+
+        LEA     DX, CRUD_UPDATE_MSG2
+        CALL    STR_PRINT
+
+	LEA     DX, REGISTRO_LEN        ;Lê REGISTRO
+	MOV     AH, 0AH
+	INT     21H
+
+        ;Limpa o buffer do registro
+        MOV     SI, 0
+        MOV     AL, '$'
+        XOR     CX, CX
+        MOV     CX, 3
+  CRUD_UPDATE_LOOP:        
+        MOV     REG_BUFFER[SI], AL
+        INC     SI
+        LOOP    CRUD_UPDATE_LOOP
+
+        ;Move a String digitada para o buffer
+        LEA     SI, REGISTRO
+        LEA     DI, REG_BUFFER
+        XOR     CX, CX
+        MOV     CL, REGISTRO_LEN_ACT
+        CLD
+        REP     MOVSB
+
+        ;Limpa o registro
+        CALL    REGISTRO_CLEAR   
+
+        ;Converter String Decimal para Número Inteiro (em AX)
+        LEA     SI, REG_BUFFER
+        CALL    STRING_DECIMAL        
+
+        CALL    HEXA2DECIMAL16
+
+        ;Copia o ID para o registro;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        LEA     SI, DIGITOS+2
+        LEA     DI, REG_ID
+        XOR     CX, CX
+        MOV     CL, 3
+        CLD
+        REP     MOVSB
+
+        ;Calcula o OFFSET do REGISTRO
+        DEC     AX
+        MOV     BL, 64
+        MUL     BL              ;AX agora tem o OFFSET do REGISTRO
+        MOV     REG_OFFSET, AX
+
+        ;Limpa o BUFFER de leitura
+        MOV     AL, ' '
+        CALL    BUFFER_READ_CLEAR
+
+        ;Posiciona o ponteiro do arquivo novamente no início do registro que deseja alterar
+        MOV     AL, 00H
+        MOV     FILE_ORIGIN, AL
+        MOV     AX, HANDLE_OUT
+        MOV     HANDLE_IN, AX
+        MOV     AX, 0000h
+        MOV     FILE_NBYTES_H, AX
+        MOV     AX, REG_OFFSET  ;Faz a leitura a partir do OFFSET       
+        MOV     FILE_NBYTES_L, AX
+        CALL    FILE_POINTER
+        MOV     AL, FILE_STATUS
+        CMP     AL, FALSE
+        JE      SAI_DOS
+
+        ;Faz a leitura da linhado arquivo em blocos definidos por BUFFER_READ_SIZE:
+        MOV     AX, HANDLE_OUT                  ;Carrega o HANDLE do
+        MOV     HANDLE_IN, AX                   ;arquivo.
+        MOV     AX, BUFFER_READ_SIZE            ;Configura o número
+        MOV     BUFFER_READ_LEN, AX             ;de bytes para serem lidos.
+        CALL    FILE_READ                       ;Tenta fazer a leitura do arquivo.
+        MOV     AL, FILE_STATUS                 ;Verifica
+        CMP     AL, FALSE                       ;a variável FILE_STATUS.
+        JE      SAI_DOS                         ;Se FALSE, sai para o DOS
+
+        ;Posiciona o ponteiro do arquivo novamente no início do registro que deseja alterar
+        MOV     AL, 00H
+        MOV     FILE_ORIGIN, AL
+        MOV     AX, HANDLE_OUT
+        MOV     HANDLE_IN, AX
+        MOV     AX, 0000h
+        MOV     FILE_NBYTES_H, AX
+        MOV     AX, REG_OFFSET  ;Faz a leitura a partir do OFFSET       
+        MOV     FILE_NBYTES_L, AX
+        CALL    FILE_POINTER
+        MOV     AL, FILE_STATUS
+        CMP     AL, FALSE
+        JE      SAI_DOS
+
+        XOR     CX, CX
+
+        ;Mostra o nome
+        LEA     DX, CRUD_READ_MSG3
+        CALL    STR_PRINT
+
+        MOV     SI, 24
+        MOV     CX, 34
+  CRUD_UPDATE_LOOP2:        
+        MOV     DL, BUFFER_READ[SI]
+        CALL    CAR_PRINT
+        INC     SI
+        LOOP    CRUD_UPDATE_LOOP2
+
+        ;Mostra a idade
+        LEA     DX, CRUD_READ_MSG4
+        CALL    STR_PRINT        
+
+        MOV     SI, 59
+        MOV     CX, 3
+  CRUD_UPDATE_LOOP3:        
+        MOV     DL, BUFFER_READ[SI]
+        CALL    CAR_PRINT
+        INC     SI
+        LOOP    CRUD_UPDATE_LOOP3
+
+        ;Mostra a data da inclusão
+        LEA     DX, CRUD_READ_MSG5
+        CALL    STR_PRINT
+
+        MOV     SI, 4
+        MOV     CX, 10
+  CRUD_UPDATE_LOOP4:        
+        MOV     DL, BUFFER_READ[SI]
+        CALL    CAR_PRINT
+        INC     SI
+        LOOP    CRUD_UPDATE_LOOP4
+
+        ;Mostra a hora da inclusão
+        LEA     DX, CRUD_READ_MSG6
+        CALL    STR_PRINT        
+
+        MOV     SI, 15
+        MOV     CX, 8
+  CRUD_UPDATE_LOOP5:        
+        MOV     DL, BUFFER_READ[SI]
+        CALL    CAR_PRINT
+        INC     SI
+        LOOP    CRUD_UPDATE_LOOP5
+
+        LEA     DX, PULA_LINHA
+        CALL    STR_PRINT 
+
+        ;Entra com o novo nome
+        LEA     DX, CRUD_MSG_CREATE_NOME
+        CALL    STR_PRINT
+        
+	LEA     DX, NOME_LEN    ;Lê NOME
+	MOV     AH, 0AH
+	INT     21H
+
+        ;Entra com a nova idade
+        LEA     DX, CRUD_MSG_CREATE_IDADE
+        CALL    STR_PRINT
+
+	LEA     DX, IDADE_LEN   ;Lê IDADE
+	MOV     AH, 0AH
+	INT     21H
+
+        ;Verifica se realmente quer alterar o registro
+        LEA     DX, CRUD_UPDATE_MSG3
+        CALL    STR_PRINT
+
+        CALL    CAR_READ
+        CMP     AL, 'Y'
+        JE      CRUD_UPDADE_ATUALIZA
+
+        LEA     DX, CRUD_UPDATE_MSG5
+        CALL    STR_PRINT
+        JMP     CRUD_UPDATE_END
+
+CRUD_UPDADE_ATUALIZA:
+        ;Prepara os dados que serão inseridos
+
+        ;Utiliza o mesmo ID
+        ;Copia o ID para o registro
+        ; LEA     SI, REG_BUFFER
+        ; LEA     DI, REG_ID
+        ; XOR     CX, CX
+        ; MOV     CL, 3
+        ; CLD
+        ; REP     MOVSB
+
+        ;Adiciona Data
+        CALL    GET_DATA
+        LEA     SI, TIME_DATA
+        LEA     DI, REG_DATA
+        XOR     CX, CX
+        MOV     CL, 10
+        CLD
+        REP     MOVSB
+
+        ;Adiciona Hora
+        CALL    GET_TIME
+        LEA     SI, TIME_HORA
+        LEA     DI, REG_HORA
+        XOR     CX, CX
+        MOV     CL, 8
+        CLD
+        REP     MOVSB
+
+        ;Copia o nome para o registro
+        LEA     SI, NOME
+        LEA     DI, REG_NOME
+        XOR     CX, CX
+        MOV     CL, NOME_LEN_ACT
+        CLD
+        REP     MOVSB
+
+        ;Copia a idade para o registro
+        LEA     SI, IDADE
+        LEA     DI, REG_IDADE
+        XOR     CX, CX
+        MOV     CL, IDADE_LEN_ACT
+        CLD
+        REP     MOVSB
+
+        ;Insere os novos dados no arquivo        
+        MOV     AX, BUFFER_WRITE_SIZE
+        MOV     BUFFER_WRITE_LEN, AX
+        MOV     AX, HANDLE_OUT
+        MOV     HANDLE_IN, AX
+        CALL    FILE_INSERT
+        MOV     AL, FILE_STATUS
+        CMP     AL, FALSE
+        JE      SAI_DOS
+
+        LEA     DX, CRUD_UPDATE_MSG4
+        CALL    STR_PRINT
+
+CRUD_UPDATE_END:
+        CALL    CAR_READ                        ;Faz a leitura de uma tecla <<<< TESTE        
+
+        JMP     INICIO_PROGRAMA
+;-------------------------------------------------------
+; FIM UPDATE
 ;-------------------------------------------------------
 
 ;*******************************************************
@@ -719,6 +967,7 @@ DATA_SEG       SEGMENT PUBLIC
         EXTERN STR_LENGHT:WORD                                  ;tamanho do texto
 
         ;Mensagens
+        PULA_LINHA DB CR,LF,'$'
         CRUD_MSG_INI1 DB '---------------------------------',CR,LF,'$'
         CRUD_MSG_INI2 DB '### CRUD versao 1.0, 21/09/2026',CR,LF,'$'
         CRUD_MSG_INI4 DB '## Total de registros: ','$'
@@ -737,18 +986,6 @@ DATA_SEG       SEGMENT PUBLIC
         CRUD_MSG_CREATE_SUCESSO DB CR,LF,'# Registro criado com sucesso!',CR,LF,'$'
         CRUD_MSG_TOTAL_BYTES DB CR,LF,CR,LF,'- Total de BYTES: ','$'
         CRUD_MSG_TOTAL_REGISTROS DB CR,LF,'- Total de REGISTROS: ','$'
-        CRUD_MSG_TECLA DB CR,LF,CR,LF,'# Pressione qualquer tecla para continuar... ','$'
-        CRUD_MSG_TECLA2 DB CR,LF,CR,LF,'# Pressione qualquer tecla para continuar ou (X) para Sair... ','$'
-
-        CRUD_MSG_LIST DB CR,LF,'-------------------------------------------------------------------',CR,LF
-                      DB 'ID |   DATA   |  HORA  |              NOME                |IDADE   ',CR,LF
-                      DB '-------------------------------------------------------------------',CR,LF,'$'
-
-        CRUD_DELETE_MSG1 DB CR,LF,'### Deletar registro:',CR,LF,'$'
-        CRUD_DELETE_MSG2 DB CR,LF,'- Deseja deletar qual registro? ','$'
-        CRUD_DELETE_MSG3 DB CR,LF,'- Deseja mesmo deletar o registro? (Y/N)','$'
-        CRUD_DELETE_MSG4 DB CR,LF,'- Registro DELETADO com SUCESSO!','$'
-        CRUD_DELETE_MSG5 DB CR,LF,'- Registro NAO DELETADO!','$'
 
         CRUD_READ_MSG1 DB CR,LF,'### Ler registro:',CR,LF,'$'
         CRUD_READ_MSG2 DB CR,LF,'- Deseja ler qual registro? ','$'
@@ -757,7 +994,25 @@ DATA_SEG       SEGMENT PUBLIC
         CRUD_READ_MSG5 DB CR,LF,'- Data da inclusao: ','$'
         CRUD_READ_MSG6 DB CR,LF,'- Hora da inclusao: ','$'
 
+        CRUD_UPDATE_MSG1 DB CR,LF,'### Atualizar registro:',CR,LF,'$'
+        CRUD_UPDATE_MSG2 DB CR,LF,'- Deseja atualizar qual registro? ','$'
+        CRUD_UPDATE_MSG3 DB CR,LF,'- Deseja mesmo atualizar o registro? (Y/N)','$'
+        CRUD_UPDATE_MSG4 DB CR,LF,'- Registro ATUALIZADO com SUCESSO!','$'
+        CRUD_UPDATE_MSG5 DB CR,LF,'- Registro NAO ATUALIZADO!','$'
+
+        CRUD_DELETE_MSG1 DB CR,LF,'### Deletar registro:',CR,LF,'$'
+        CRUD_DELETE_MSG2 DB CR,LF,'- Deseja deletar qual registro? ','$'
+        CRUD_DELETE_MSG3 DB CR,LF,'- Deseja mesmo deletar o registro? (Y/N)','$'
+        CRUD_DELETE_MSG4 DB CR,LF,'- Registro DELETADO com SUCESSO!','$'
+        CRUD_DELETE_MSG5 DB CR,LF,'- Registro NAO DELETADO!','$'
+
         CRUD_LIST_QREG DB CR,LF,'- Digite a quantidade de registros por tela (1-9): ','$'
+        CRUD_MSG_TECLA DB CR,LF,CR,LF,'# Pressione qualquer tecla para continuar... ','$'
+        CRUD_MSG_TECLA2 DB CR,LF,CR,LF,'# Pressione qualquer tecla para continuar ou (X) para Sair... ','$'
+
+        CRUD_MSG_LIST DB CR,LF,'-------------------------------------------------------------------',CR,LF
+                      DB 'ID |   DATA   |  HORA  |              NOME                |IDADE   ',CR,LF
+                      DB '-------------------------------------------------------------------',CR,LF,'$'
 
         ;Variáveis referentes a data e hora
         EXTERN TIME_HORA:BYTE
