@@ -296,6 +296,9 @@ CRUD_READ:
 
         ;Limpa o registro
         CALL    REGISTRO_CLEAR  
+        ;Limpa o BUFFER de leitura
+        MOV     AL, ' '
+        CALL    BUFFER_READ_CLEAR
 
         ;Posiciona o ponteiro do arquivo no início
         MOV     AL, 00H
@@ -492,7 +495,22 @@ CRUD_DELETE_EXIT:
 ;*******************************************************
 CRUD_LIST_ALL:
 
+        ;Escolhe a quantidade de caracteres por tela
+        LEA     DX, CRUD_LIST_QREG
+        CALL    STR_PRINT
+        CALL    CAR_READ
+
+        ;O número digitado deve estar entre 0 e 9        
+        CMP     AL, '0'
+        JBE     CRUD_LIST_ALL
+        CMP     AL, '9'
+        JA      CRUD_LIST_ALL
+
+        SUB     AL, '0'
+        MOV     QREG, AL
+
         ;Limpa o buffer de leitura
+        MOV     AL, '$'
         CALL    BUFFER_READ_CLEAR
 
         ;Posiciona o ponteiro do arquivo no início do arquivo
@@ -534,11 +552,11 @@ CRUD_LIST_ALL_LOOP:
         LEA     DX, BUFFER_READ                 ;Conteúdo do
         CALL    STR_PRINT                       ;arquivo.
 
-        ;Pausa a casa 10 visualização de registros
-        INC     CX
-        CMP     CX, 10
+        ;Pausa a casa N visualização de registros
+        INC     CL
+        CMP     CL, QREG
         JNE     MOSTRA
-        XOR     CX, CX          ;Zera CX
+        XOR     CL, CL          ;Zera CL
               
         ;Sai ou continua
         LEA     DX, CRUD_MSG_TECLA2
@@ -606,6 +624,7 @@ REGISTRO_CLEAR     ENDP
 
 ;****************************************************************
 ; BUFFER_READ_CLEAR - Limpa o buffer de leitura
+; Entrada: AL - Caracter que deseja preencher o buffer
 ;****************************************************************
 
 BUFFER_READ_CLEAR     PROC    NEAR
@@ -615,7 +634,7 @@ BUFFER_READ_CLEAR     PROC    NEAR
         PUSH    SI
 
         MOV     SI, 0
-        MOV     AL, '$'
+        ;MOV     AL, '$'
         XOR     CX, CX
         MOV     CX, BUFFER_READ_SIZE+1
 
@@ -645,6 +664,8 @@ DATA_SEG       SEGMENT PUBLIC
         ID              DW ?
         NUM_BYTES       DW ?
         EXTERN FILE_NUM_BYTES_L:WORD
+
+        QREG            DB 5
 
         REG_OFFSET      DW ?
 
@@ -735,6 +756,8 @@ DATA_SEG       SEGMENT PUBLIC
         CRUD_READ_MSG4 DB CR,LF,'- Idade: ','$'
         CRUD_READ_MSG5 DB CR,LF,'- Data da inclusao: ','$'
         CRUD_READ_MSG6 DB CR,LF,'- Hora da inclusao: ','$'
+
+        CRUD_LIST_QREG DB CR,LF,'- Digite a quantidade de registros por tela (1-9): ','$'
 
         ;Variáveis referentes a data e hora
         EXTERN TIME_HORA:BYTE
